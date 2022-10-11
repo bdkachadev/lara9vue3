@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
+use Validator;
 
 class RoleController extends Controller
 {
@@ -14,7 +19,9 @@ class RoleController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Roles');
+        $roles = Role::all();
+        $permissions = Permission::all();
+        return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions]);
     }
 
     /**
@@ -35,7 +42,30 @@ class RoleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator =  Validator::make($request->all(), [
+            'name' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+        }
+
+        if ($request->id) {
+            $role = Role::find($request->id);
+            $role->name = $request->name;
+            $role->save();
+
+            return Redirect::back()->with('success', 'Role Updated SuccessFully!!!');
+        } else {
+            $role = Role::where("name", $request->name)->first();
+            if ($role) {
+                return Redirect::back()->with('error', 'Role Already Exist!!!');
+            }
+            $role = new Role;
+            $role->name = $request->name;
+            $role->save();
+        }
+        return Redirect::back()->with('success', 'Role Created Successfully!!!');
     }
 
     /**
@@ -55,9 +85,10 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request)
     {
-        //
+        $roles = Role::find($request->id);
+        return response()->json($roles);
     }
 
     /**
@@ -81,5 +112,34 @@ class RoleController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function givenPermission(Request $request, Role $role)
+    {
+        
+        if ($role->hasPermission($request->permission)) {
+            return Redirect::back()->with('error', 'Permission Already  Exists!!!');
+        }
+        $role->givenPermissionTo($request->permission);
+
+        // $validator =  Validator::make($request->all(), [
+        //     'permission' => ['required'],
+        // ]);
+
+        // if ($validator->fails()) {
+        //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+        // }
+
+        // $role = new Role;
+        // $role->name = $request->name;
+        // $role->save();
+
+        return Redirect::back()->with('success', 'Permission Given  Successfully!!!');
     }
 }

@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
+use Validator;
 
 class UserController extends Controller
 {
@@ -14,7 +19,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Users');
+        $users = User::all();
+        $roles = Role::all();
+        $permissions = Permission::all();
+        return Inertia::render('Users', ['users' => $users, 'roles' => $roles, 'permissions' => $permissions]);
     }
 
     /**
@@ -35,7 +43,33 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator =  Validator::make($request->all(), [
+            'name' => ['required'],
+            'email' => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+        }
+
+        if ($request->id) {
+            $user = User::find($request->id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->save();
+
+            return Redirect::back()->with('success', 'User Updated SuccessFully!!!');
+        } else {
+            $user = User::where("email", $request->email)->first();
+            if ($user) {
+                return Redirect::back()->with('error', 'User Already Exist With Email!!!');
+            }
+            $user = new User;
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->save();
+        }
+        return Redirect::back()->with('success', 'User Created Successfully!!!');
     }
 
     /**
@@ -55,9 +89,10 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request)
     {
-        //
+        $user = User::find($request->id);
+        return response()->json($user);
     }
 
     /**
