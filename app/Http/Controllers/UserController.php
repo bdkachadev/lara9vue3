@@ -19,10 +19,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::with('roles')->get();
         $roles = Role::all();
         $permissions = Permission::all();
-        return Inertia::render('Users', ['users' => $users, 'roles' => $roles, 'permissions' => $permissions]);
+        $options = array_column($roles->toArray(), "name");
+
+        return Inertia::render('Users', ['users' => $users, 'roles' => $roles, "options" => $options, 'permissions' => $permissions]);
+    
     }
 
     /**
@@ -57,7 +60,10 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->save();
-
+            // sync Roles
+            if ($request->role) {
+                $user->syncRoles($request->role);
+            }
             return Redirect::back()->with('success', 'User Updated SuccessFully!!!');
         } else {
             $user = User::where("email", $request->email)->first();
@@ -68,6 +74,10 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->save();
+             // sync Roles
+             if ($request->role) {
+                $user->syncRoles($request->role);
+            }
         }
         return Redirect::back()->with('success', 'User Created Successfully!!!');
     }
@@ -91,7 +101,7 @@ class UserController extends Controller
      */
     public function edit(Request $request)
     {
-        $user = User::find($request->id);
+        $user = User::with('roles')->find($request->id);
         return response()->json($user);
     }
 

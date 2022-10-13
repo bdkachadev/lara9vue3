@@ -3,7 +3,7 @@
 
   <AuthenticatedLayout>
     <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">Users</h2>
+      <h2 className="font-semibold text-xl text-gray-800 leading-tight">Users</h2>
     </template>
     <span v-if="$page.props.flash.success">
       {{ success($page.props.flash.success) }}
@@ -11,18 +11,18 @@
     <span v-if="$page.props.flash.error">
       {{ error($page.props.flash.error) }}
     </span>
-    <div class="py-8">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
-            <div class="flow-root">
-              <p class="float-left">Edit User</p>
+    <div className="py-8">
+      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div className="p-6 bg-white border-b border-gray-200">
+            <div className="flow-root">
+              <p className="float-left">Edit User</p>
             </div>
           </div>
-          <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+          <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
             <form
               ref="formUser"
-              class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+              className="bg-white shadow-md rounded px-8 pt-6 pb-8 "
               @submit.prevent="submitUser"
             >
               <input v-model="userForm.id" type="hidden" value="" />
@@ -31,7 +31,7 @@
                 <BreezeInput
                   id="title"
                   type="text"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                   v-model="userForm.name"
                   autofocus
                 />
@@ -40,12 +40,12 @@
                   {{ userForm.errors.name }}
                 </span>
               </div>
-              <div class="mb-2">
+              <div className="mb-2">
                 <BreezeLabel for="name" value="Email" />
                 <BreezeInput
                   id="email"
                   type="email"
-                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                   v-model="userForm.email"
                   autofocus
                 />
@@ -54,9 +54,24 @@
                   {{ userForm.errors.email }}
                 </span>
               </div>
-              <div class="flex items-center justify-between">
+              <div className="mb-2">
+                <BreezeLabel for="name" value="Assign Role To User" />
+                 <Multiselect
+                    mode="tags"
+                    :close-on-select="false"
+                    :searchable="true"
+                    :create-option="true"
+                    v-model="userForm.role"
+                    :options="options"
+                  />
+
+                <span className="text-red-600" v-if="userForm.errors.email">
+                  {{ userForm.errors.email }}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
                 <button
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                   type="submit"
                 >
                   Save
@@ -67,47 +82,54 @@
         </div>
       </div>
     </div>
-    <div class="py-8">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-6 bg-white border-b border-gray-200">
-            <div class="flow-root">
-              <p class="float-left">User List</p>
+    <div className="py-8">
+      <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div className="p-6 bg-white border-b border-gray-200">
+            <div className="flow-root">
+              <p className="float-left">User List</p>
             </div>
           </div>
-          <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
+            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead
-                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+                className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
               >
                 <tr>
-                  <th scope="col" class="py-3 px-6">User name</th>
-                  <th scope="col" class="py-3 px-6">Email</th>
-                  <th scope="col" class="py-3 px-6">Action</th>
+                  <th scope="col" className="py-3 px-6">User name</th>
+                  <th scope="col" className="py-3 px-6">Email</th>
+                  <th scope="col" className="py-3 px-6">Role</th>
+                  <th scope="col" className="py-3 px-6">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   v-for="user in users"
-                  class="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
+                  className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <th
                     scope="row"
-                    class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
                     {{ user.name }}
                   </th>
-                  <td class="py-4 px-6">{{ user.email }}</td>
+                  <td className="py-4 px-6">{{ user.email }}</td>
+                  <td className="py-4 px-6">
+                  {{
+                      user.roles.length > 0
+                        ? user.roles.map((item) => item.name)
+                        : ""
+                    }}</td>
 
-                  <td class="py-4 px-6">
+                  <td className="py-4 px-6">
                     <a
                       @click="updateUser(user.id)"
-                      class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
                       href="#"
-                      class="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
+                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
                   </td>
@@ -128,15 +150,19 @@ import BreezeLabel from "@/Components/InputLabel.vue";
 import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
+import Multiselect from "@vueform/multiselect";
 
 defineProps({
+  options:Object,
   users: Object,
 });
 
 const userForm = useForm({
   name: "",
+  
   id: "",
   email: "",
+  role:null
 });
 
 const submitUser = (event) => {
@@ -153,9 +179,13 @@ const updateUser = (id) => {
       },
     })
     .then((res) => {
+      var roles = res.data.roles.map((item) => item.name);
+      console.warn(roles);
+
       userForm.id = res.data.id;
       userForm.name = res.data.name;
       userForm.email = res.data.email;
+      userForm.role = roles;
     });
 };
 
@@ -187,3 +217,4 @@ const error = (error) => {
   });
 };
 </script>
+<style src="@vueform/multiselect/themes/default.css"></style>
