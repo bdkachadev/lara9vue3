@@ -10,7 +10,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 
-class permissionController extends Controller
+class PermissionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,8 +20,10 @@ class permissionController extends Controller
     public function index()
     {
         $roles = Role::all();
-        $permissions = Permission::all();
-        return Inertia::render('Permissions', ['roles' => $roles, 'permissions' => $permissions]);
+        $permissions = Permission::with('roles')->get();
+        $options = array_column($roles->toArray(), "name");
+
+        return Inertia::render('Permissions', ['roles' => $roles, 'permissions' => $permissions, "options" => $options]);
     }
 
     /**
@@ -54,6 +56,10 @@ class permissionController extends Controller
             $permission = Permission::find($request->id);
             $permission->name = $request->name;
             $permission->save();
+            // sync Roles
+            if ($request->role) {
+                $permission->syncRoles($request->role);
+            }
 
             return Redirect::back()->with('success', 'Permission Updated SuccessFully!!!');
         } else {
@@ -64,6 +70,10 @@ class permissionController extends Controller
             $permission = new Permission;
             $permission->name = $request->name;
             $permission->save();
+            // sync Roles
+            if ($request->role) {
+                $permission->syncRoles($request->role);
+            }
         }
         return Redirect::back()->with('success', 'Permission Created Successfully!!!');
     }
@@ -87,7 +97,7 @@ class permissionController extends Controller
      */
     public function edit(Request $request)
     {
-        $permissions = Permission::find($request->id);
+        $permissions = Permission::with('roles')->find($request->id);
         return response()->json($permissions);
     }
 
@@ -112,29 +122,5 @@ class permissionController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function assignRole(Request $request)
-    {
-        $validator =  Validator::make($request->all(), [
-            'role' => ['required'],
-        ]);
-
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->with('error', 'Something went wrong!.');
-        }
-
-
-        $permission = new Permission;
-        $permission->name = $request->name;
-        $permission->save();
-
-        return Redirect::back()->with('success', 'Assign Role Successfully!!!');
     }
 }

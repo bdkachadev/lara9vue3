@@ -19,9 +19,16 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::all();
+        $roles = Role::with('permissions')->get();
+        // // dd($roles);
+        // foreach ($roles as $r) {
+        //     dump($r->permissions);
+        // }
+        // dd('g');
+        // foreach()
         $permissions = Permission::all();
-        return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions]);
+        $options = array_column($permissions->toArray(), "name");
+        return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions, "options" => $options]);
     }
 
     /**
@@ -49,12 +56,14 @@ class RoleController extends Controller
         if ($validator->fails()) {
             return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         }
-
         if ($request->id) {
             $role = Role::find($request->id);
             $role->name = $request->name;
             $role->save();
-
+            // sync Permissions
+            if ($request->permission) {
+                $role->syncPermissions($request->permission);
+            }
             return Redirect::back()->with('success', 'Role Updated SuccessFully!!!');
         } else {
             $role = Role::where("name", $request->name)->first();
@@ -64,7 +73,14 @@ class RoleController extends Controller
             $role = new Role;
             $role->name = $request->name;
             $role->save();
+            // sync Permissions
+            if ($request->permission) {
+                $role->syncPermissions($request->permission);
+            }
         }
+
+
+
         return Redirect::back()->with('success', 'Role Created Successfully!!!');
     }
 
@@ -87,7 +103,7 @@ class RoleController extends Controller
      */
     public function edit(Request $request)
     {
-        $roles = Role::find($request->id);
+        $roles = Role::with('permissions')->find($request->id);
         return response()->json($roles);
     }
 
@@ -112,34 +128,5 @@ class RoleController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function givenPermission(Request $request, Role $role)
-    {
-        
-        if ($role->hasPermission($request->permission)) {
-            return Redirect::back()->with('error', 'Permission Already  Exists!!!');
-        }
-        $role->givenPermissionTo($request->permission);
-
-        // $validator =  Validator::make($request->all(), [
-        //     'permission' => ['required'],
-        // ]);
-
-        // if ($validator->fails()) {
-        //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
-        // }
-
-        // $role = new Role;
-        // $role->name = $request->name;
-        // $role->save();
-
-        return Redirect::back()->with('success', 'Permission Given  Successfully!!!');
     }
 }

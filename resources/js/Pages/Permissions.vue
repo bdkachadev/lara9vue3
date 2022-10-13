@@ -40,6 +40,62 @@
                   {{ permissionForm.errors.name }}
                 </span>
               </div>
+              <div className="mb-4">
+                <!-- <BreezeLabel for="permission" value="Permissions" />
+                <select
+                  id="permission"
+                  class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  v-model="roleForm.permission"
+                >
+                  <option value="">Select Permission</option>
+                  <option
+                    value="permission.name"
+                    v-for="permission in permissions"
+                    :key="permission.id"
+                  >
+                    {{ permission.name }}
+                  </option>
+                </select>
+
+                <span className="text-red-600" v-if="roleForm.errors.name">
+                  {{ roleForm.errors.name }}
+                </span> -->
+
+                <div>
+                  <label class="typo__label">Assign Role to Permission</label>
+                  <!-- <multiselect
+                    v-model="roleForm.permission"
+                    :options="options"
+                    :multiple="true"
+                    :close-on-select="false"
+                    :clear-on-select="false"
+                    :preserve-search="true"
+                    placeholder="Pick some"
+                    label="name"
+                    track-by="name"
+                    :preselect-first="true"
+                  >
+                    <template slot="selection" slot-scope="{ values, search, isOpen }"
+                      ><span
+                        class="multiselect__single"
+                        v-if="roleForm.permission.length &amp;&amp; !isOpen"
+                        >{{ roleForm.permission.length }} options selected</span
+                      ></template
+                    >
+                  </multiselect> 
+                  <pre class="language-json"><code>{{ value  }}</code></pre> -->
+
+                  <Multiselect
+                    mode="tags"
+                    :close-on-select="false"
+                    :searchable="true"
+                    :create-option="true"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    v-model="permissionForm.role"
+                    :options="options"
+                  />
+                </div>
+              </div>
               <div class="flex items-center justify-between">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -53,7 +109,7 @@
         </div>
       </div>
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <!-- <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
             <div class="flow-root">
               <p class="float-left">Assign Role to Permission</p>
@@ -92,7 +148,7 @@
               </div>
             </form>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
     <div class="py-8">
@@ -110,6 +166,7 @@
               >
                 <tr>
                   <th scope="col" class="py-3 px-6">Permission name</th>
+                  <th scope="col" class="py-3 px-6">Assign Roles</th>
                   <th scope="col" class="py-3 px-6">Action</th>
                 </tr>
               </thead>
@@ -123,6 +180,17 @@
                     class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
                     {{ permission.name }}
+                  </th>
+
+                  <th
+                    scope="row"
+                    class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {{
+                      permission.roles.length > 0
+                        ? permission.roles.map((item) => item.name)
+                        : ""
+                    }}
                   </th>
 
                   <td class="py-4 px-6">
@@ -154,18 +222,21 @@ import BreezeLabel from "@/Components/InputLabel.vue";
 import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
+import Multiselect from "@vueform/multiselect";
 
 defineProps({
   roles: Object,
   permissions: Object,
+  options: Object,
 });
 const permissionForm = useForm({
   name: "",
   id: "",
+  role: null,
 });
-const assignRoleForm = useForm({
-  role: "",
-});
+// const assignRoleForm = useForm({
+//   role: "",
+// });
 
 const submitPermission = (event) => {
   permissionForm.post(route("manage.permissions.store"), {
@@ -185,8 +256,11 @@ const updatePermission = (id) => {
       },
     })
     .then((res) => {
+      var roles = res.data.roles.map((item) => item.name);
+      console.warn(roles);
       permissionForm.id = res.data.id;
       permissionForm.name = res.data.name;
+      permissionForm.role = roles;
     });
 };
 
@@ -220,3 +294,4 @@ const error = (error) => {
   });
 };
 </script>
+<style src="@vueform/multiselect/themes/default.css"></style>

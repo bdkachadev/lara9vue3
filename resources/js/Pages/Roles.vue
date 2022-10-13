@@ -12,7 +12,7 @@
       {{ error($page.props.flash.error) }}
     </span>
     <div class="py-8 flex">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto sm:px-12 lg:px-8">
         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
           <div class="p-6 bg-white border-b border-gray-200">
             <div class="flow-root">
@@ -62,8 +62,8 @@
                 </span> -->
 
                 <div>
-                  <label class="typo__label">Simple select / dropdown</label>
-                  <multiselect
+                  <label class="typo__label">Permission Given to Role</label>
+                  <!-- <multiselect
                     v-model="roleForm.permission"
                     :options="options"
                     :multiple="true"
@@ -82,8 +82,18 @@
                         >{{ roleForm.permission.length }} options selected</span
                       ></template
                     >
-                  </multiselect>
-                  <pre class="language-json"><code>{{ value  }}</code></pre>
+                  </multiselect> 
+                  <pre class="language-json"><code>{{ value  }}</code></pre> -->
+
+                  <Multiselect
+                    mode="tags"
+                    :close-on-select="false"
+                    :searchable="true"
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    :create-option="true"
+                    v-model="roleForm.permission"
+                    :options="options"
+                  />
                 </div>
               </div>
               <div class="flex items-center justify-between">
@@ -160,6 +170,7 @@
               >
                 <tr>
                   <th scope="col" class="py-3 px-6">Role name</th>
+                  <th scope="col" class="py-3 px-6">Given Permissions</th>
                   <th scope="col" class="py-3 px-6">Action</th>
                 </tr>
               </thead>
@@ -173,6 +184,17 @@
                     class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
                     {{ role.name }}
+                  </th>
+
+                  <th
+                    scope="row"
+                    class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {{
+                      role.permissions.length > 0
+                        ? role.permissions.map((item) => item.name)
+                        : ""
+                    }}
                   </th>
 
                   <td class="py-4 px-6">
@@ -204,21 +226,39 @@ import BreezeLabel from "@/Components/InputLabel.vue";
 import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
+import Multiselect from "@vueform/multiselect";
 
 defineProps({
   roles: Object,
   permissions: Object,
+  options: Object,
 });
 
 const roleForm = useForm({
   name: "",
   id: "",
-  permission: "",
+  permission: null,
 });
 // const givenPermissionForm = useForm({
 //   permission: "",
 // });
 
+// const value = null;
+// const options = ["Batman", "Robin", "Joker"];
+
+// const options = computed((permissions) => {
+//   console.warn(permissions);
+//   var arrNames = [];
+//   //iterate through object keys
+//   Object.keys(permissions).forEach(function (key) {
+//     //get the value of name
+//     var val = permissions[key]["name"];
+//     //push the name string in the array
+//     arrNames.push(val);
+//   });
+//   return arrNames;
+//   console.log(arrNames); //prints ["someone1", "someone2"]
+// });
 const submitRole = (event) => {
   roleForm.post(route("manage.roles.store"), {
     onFinish: () => event.target.reset(),
@@ -238,8 +278,10 @@ const updateRole = (id) => {
       },
     })
     .then((res) => {
+      var permissions = res.data.permissions.map((item) => item.name);
       roleForm.id = res.data.id;
       roleForm.name = res.data.name;
+      roleForm.permission = permissions;
     });
 };
 
@@ -273,3 +315,4 @@ const error = (error) => {
   });
 };
 </script>
+<style src="@vueform/multiselect/themes/default.css"></style>
