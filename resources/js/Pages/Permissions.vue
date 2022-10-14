@@ -93,6 +93,9 @@
                     v-model="permissionForm.role"
                     :options="options"
                   />
+                  <span className="text-red-600" v-if="permissionForm.errors.role">
+                    {{ permissionForm.errors.role }}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -194,12 +197,12 @@
 
                   <td className="py-4 px-6">
                     <a
-                      @click="updatePermission(permission.id)"
+                      @click="editPermission(permission.id)"
                       className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
-                      @click="deletePermission(permission.id)"
+                      @click="destroyPermission(permission.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
@@ -238,8 +241,9 @@ const permissionForm = useForm({
 // });
 
 const submitPermission = (event) => {
+  console.warn(permissionForm);
   permissionForm.post(route("manage.permissions.store"), {
-    onFinish: () => event.target.reset(),
+    // onFinish: () => event.target.reset(),
   });
 };
 const submitassignRoleForm = (event) => {
@@ -247,36 +251,31 @@ const submitassignRoleForm = (event) => {
     onFinish: () => event.target.reset(),
   });
 };
-const updatePermission = (id) => {
-  axios
-    .get(route("manage.permissions.edit"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      var roles = res.data.roles.map((item) => item.name);
-      console.warn(roles);
-      permissionForm.id = res.data.id;
-      permissionForm.name = res.data.name;
-      permissionForm.role = roles;
-    });
+const editPermission = (id) => {
+  axios.get(route("manage.permissions.edit", id)).then((res) => {
+    var roles = res.data.roles.map((item) => item.name);
+    console.warn(roles);
+    permissionForm.id = res.data.id;
+    permissionForm.name = res.data.name;
+    permissionForm.role = roles;
+  });
 };
 
-const deletePermission = (id) => {
-  axios
-    .get(route("manage.permissions.delete"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      Swal.fire({
-        title: "Wow!",
-        text: "Permission Successfully Deleted!!!",
-        icon: "success",
-      });
-    });
+const destroyPermission = (id) => {
+  Swal.fire({
+    title: "Warning!",
+    text: "Are you sure you want to delete this?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      permissionForm.delete(route("manage.permissions.destroy", id));
+    }
+  });
 };
 const success = (success) => {
   Swal.fire({

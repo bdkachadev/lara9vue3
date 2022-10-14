@@ -54,6 +54,13 @@ const showingNavigationDropdown = ref(false);
                 >
                   Permissions
                 </NavLink>
+
+                <NavLink
+                  :href="route('manage.products.index')"
+                  :active="route().current('manage.products.index')"
+                >
+                  Products
+                </NavLink>
               </div>
             </div>
 

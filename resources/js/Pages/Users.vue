@@ -56,14 +56,14 @@
               </div>
               <div className="mb-2">
                 <BreezeLabel for="name" value="Assign Role To User" />
-                 <Multiselect
-                    mode="tags"
-                    :close-on-select="false"
-                    :searchable="true"
-                    :create-option="true"
-                    v-model="userForm.role"
-                    :options="options"
-                  />
+                <Multiselect
+                  mode="tags"
+                  :close-on-select="false"
+                  :searchable="true"
+                  :create-option="true"
+                  v-model="userForm.role"
+                  :options="options"
+                />
 
                 <span className="text-red-600" v-if="userForm.errors.email">
                   {{ userForm.errors.email }}
@@ -115,20 +115,17 @@
                   </th>
                   <td className="py-4 px-6">{{ user.email }}</td>
                   <td className="py-4 px-6">
-                  {{
-                      user.roles.length > 0
-                        ? user.roles.map((item) => item.name)
-                        : ""
-                    }}</td>
+                    {{ user.roles.length > 0 ? user.roles.map((item) => item.name) : "" }}
+                  </td>
 
                   <td className="py-4 px-6">
                     <a
-                      @click="updateUser(user.id)"
+                      @click="editUser(user.id)"
                       className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
-                      href="#"
+                      @click="destroyUser(user.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
@@ -153,16 +150,15 @@ import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 
 defineProps({
-  options:Object,
+  options: Object,
   users: Object,
 });
 
 const userForm = useForm({
   name: "",
-  
   id: "",
   email: "",
-  role:null
+  role: null,
 });
 
 const submitUser = (event) => {
@@ -171,36 +167,33 @@ const submitUser = (event) => {
   });
 };
 
-const updateUser = (id) => {
-  axios
-    .get(route("manage.users.edit"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      var roles = res.data.roles.map((item) => item.name);
-      console.warn(roles);
+const editUser = (id) => {
+  axios.get(route("manage.users.edit", id)).then((res) => {
+    var roles = res.data.roles.map((item) => item.name);
+    console.warn(roles);
 
-      userForm.id = res.data.id;
-      userForm.name = res.data.name;
-      userForm.email = res.data.email;
-      userForm.role = roles;
-    });
+    userForm.id = res.data.id;
+    userForm.name = res.data.name;
+    userForm.email = res.data.email;
+    userForm.role = roles;
+  });
 };
 
-const deleteUser = (id) => {
-  axios
-    .get(route("manage.users.edit"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      userForm.id = res.data.id;
-      userForm.name = res.data.name;
-      userForm.email = res.data.email;
-    });
+const destroyUser = (id) => {
+  Swal.fire({
+    title: "Warning!",
+    text: "Are you sure you want to delete this?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      userForm.delete(route("manage.users.destroy", id));
+    }
+  });
 };
 const success = (success) => {
   Swal.fire({

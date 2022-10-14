@@ -5,12 +5,13 @@
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Roles</h2>
     </template>
-    <span v-if="$page.props.flash.success">
+
+    <div v-if="$page.props.flash.success">
       {{ success($page.props.flash.success) }}
-    </span>
-    <span v-if="$page.props.flash.error">
+    </div>
+    <div v-if="$page.props.flash.error">
       {{ error($page.props.flash.error) }}
-    </span>
+    </div>
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-12 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -94,6 +95,9 @@
                     v-model="roleForm.permission"
                     :options="options"
                   />
+                  <span className="text-red-600" v-if="roleForm.errors.permission">
+                    {{ roleForm.errors.permission }}
+                  </span>
                 </div>
               </div>
               <div className="flex items-center justify-between">
@@ -199,12 +203,12 @@
 
                   <td className="py-4 px-6">
                     <a
-                      @click="updateRole(role.id)"
+                      @click="editRole(role.id)"
                       className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
-                      @click="deleteRole(role.id)"
+                      @click="destroyRole(role.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
@@ -227,11 +231,13 @@ import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
+import { Inertia } from "@inertiajs/inertia";
 
 defineProps({
   roles: Object,
   permissions: Object,
   options: Object,
+  errors: Object,
 });
 
 const roleForm = useForm({
@@ -270,35 +276,30 @@ const submitgivenPermission = (event) => {
   });
 };
 
-const updateRole = (id) => {
-  axios
-    .get(route("manage.roles.edit"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      var permissions = res.data.permissions.map((item) => item.name);
-      roleForm.id = res.data.id;
-      roleForm.name = res.data.name;
-      roleForm.permission = permissions;
-    });
+const editRole = (id) => {
+  axios.get(route("manage.roles.edit", id)).then((res) => {
+    var permissions = res.data.permissions.map((item) => item.name);
+    roleForm.id = res.data.id;
+    roleForm.name = res.data.name;
+    roleForm.permission = permissions;
+  });
 };
 
-const deleteRole = (id) => {
-  axios
-    .get(route("manage.roles.delete"), {
-      params: {
-        id: id,
-      },
-    })
-    .then((res) => {
-      Swal.fire({
-        title: "Wow!",
-        text: "Role Successfully Deleted!!!",
-        icon: "success",
-      });
-    });
+const destroyRole = (id) => {
+  Swal.fire({
+    title: "Warning!",
+    text: "Are you sure you want to delete this?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      roleForm.delete(route("manage.roles.destroy", id));
+    }
+  });
 };
 const success = (success) => {
   Swal.fire({
@@ -312,6 +313,13 @@ const error = (error) => {
     title: "Oh!",
     text: error,
     icon: "error",
+  });
+};
+const warning = (warning) => {
+  Swal.fire({
+    title: "Warning!",
+    text: warning,
+    icon: "warning",
   });
 };
 </script>

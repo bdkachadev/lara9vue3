@@ -19,7 +19,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $roles = Role::all();
+        $roles = Role::whereNotIn('name', ['super_admin'])->get();
         $permissions = Permission::with('roles')->get();
         $options = array_column($roles->toArray(), "name");
 
@@ -45,13 +45,13 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validator =  Validator::make($request->all(), [
-            'name' => ['required'],
-        ]);
+            'name' => 'required',
+            // 'role' => 'required'
+        ])->validate();
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->with('error', 'Something went wrong!.');
-        }
-
+        // if ($validator->fails()) {
+        //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+        // }
         if ($request->id) {
             $permission = Permission::find($request->id);
             $permission->name = $request->name;
@@ -59,6 +59,9 @@ class PermissionController extends Controller
             // sync Roles
             if ($request->role) {
                 $permission->syncRoles($request->role);
+            }
+            if (!$permission->hasRole('super_admin')) {
+                $permission->assignRole('super_admin');
             }
 
             return Redirect::back()->with('success', 'Permission Updated SuccessFully!!!');
@@ -73,6 +76,9 @@ class PermissionController extends Controller
             // sync Roles
             if ($request->role) {
                 $permission->syncRoles($request->role);
+            }
+            if (!$permission->hasRole('super_admin')) {
+                $permission->assignRole('super_admin');
             }
         }
         return Redirect::back()->with('success', 'Permission Created Successfully!!!');
@@ -95,9 +101,9 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request)
+    public function edit(Request $request, Permission $permission)
     {
-        $permissions = Permission::with('roles')->find($request->id);
+        $permissions = Permission::with('roles')->find($permission->id);
         return response()->json($permissions);
     }
 
@@ -119,8 +125,13 @@ class PermissionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Permission $permission)
     {
-        //
+        $permission = Permission::with('roles')->find($permission->id);
+        if (count($permission->roles) > 1) {
+            return Redirect::back()->with('error', 'This Permission is Given To Role So not Deleted!!!');
+        }
+        $permission->delete();
+        return Redirect::back()->with('success', 'Permission Deleted Successfully!!!');
     }
 }

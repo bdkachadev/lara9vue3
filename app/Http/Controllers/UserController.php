@@ -19,13 +19,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::with('roles')->get();
-        $roles = Role::all();
+        $users = User::with('roles')->whereNotIn('id', [1])->get();
+        $roles = Role::with('permissions')->whereNotIn('name', ['super_admin'])->get();
+
         $permissions = Permission::all();
         $options = array_column($roles->toArray(), "name");
 
         return Inertia::render('Users', ['users' => $users, 'roles' => $roles, "options" => $options, 'permissions' => $permissions]);
-    
     }
 
     /**
@@ -74,8 +74,8 @@ class UserController extends Controller
             $user->name = $request->name;
             $user->email = $request->email;
             $user->save();
-             // sync Roles
-             if ($request->role) {
+            // sync Roles
+            if ($request->role) {
                 $user->syncRoles($request->role);
             }
         }
@@ -99,9 +99,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request)
+    public function edit(Request $request, User $user)
     {
-        $user = User::with('roles')->find($request->id);
+        $user = User::with('roles')->find($user->id);
         return response()->json($user);
     }
 
@@ -123,8 +123,9 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        $user->delete();
+        return Redirect::back()->with('success', 'User Deleted Successfully!!!');
     }
 }

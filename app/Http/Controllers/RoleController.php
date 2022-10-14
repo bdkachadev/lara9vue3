@@ -19,13 +19,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::with('permissions')->get();
-        // // dd($roles);
-        // foreach ($roles as $r) {
-        //     dump($r->permissions);
-        // }
-        // dd('g');
-        // foreach()
+        $roles = Role::with('permissions')->whereNotIn('name', ['super_admin'])->get();
         $permissions = Permission::all();
         $options = array_column($permissions->toArray(), "name");
         return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions, "options" => $options]);
@@ -50,12 +44,13 @@ class RoleController extends Controller
     public function store(Request $request)
     {
         $validator =  Validator::make($request->all(), [
-            'name' => ['required'],
-        ]);
+            'name' => 'required',
+            'permission' => 'required'
+        ])->validate();
 
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->with('error', 'Something went wrong!.');
-        }
+        // if ($validator->fails()) {
+        //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+        // }
         if ($request->id) {
             $role = Role::find($request->id);
             $role->name = $request->name;
@@ -101,10 +96,10 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request)
+    public function edit(Role $role)
     {
-        $roles = Role::with('permissions')->find($request->id);
-        return response()->json($roles);
+        $role = Role::with('permissions')->find($role->id);
+        return response()->json($role);
     }
 
     /**
@@ -125,8 +120,13 @@ class RoleController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Role $role)
     {
-        //
+        $role = Role::with('users')->find($role->id);
+        if (count($role->users) > 0) {
+            return Redirect::back()->with('error', 'This Role is Assigned To User So not Deleted!!!');
+        }
+        $role->delete();
+        return Redirect::back()->with('success', 'Role Deleted Successfully!!!');
     }
 }

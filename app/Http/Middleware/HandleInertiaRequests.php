@@ -44,8 +44,8 @@ class HandleInertiaRequests extends Middleware
                 ]);
             },
             'flash' => [
-                'success' => session('success'),
-                'error' => session('error')
+                'success' => fn () => session('success'),
+                'error' => fn () => session('error')
 
             ],
         ]);
