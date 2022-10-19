@@ -8,10 +8,19 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
+
 use Validator;
 
 class PermissionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_permission', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_permission', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_permission', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_permission', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -23,7 +32,12 @@ class PermissionController extends Controller
         $permissions = Permission::with('roles')->get();
         $options = array_column($roles->toArray(), "name");
 
-        return Inertia::render('Permissions', ['roles' => $roles, 'permissions' => $permissions, "options" => $options]);
+        return Inertia::render('Permissions', ["can" => [
+            'show' => Auth::user()->can('show_permission'),
+            'add' => Auth::user()->can('add_permission'),
+            'delete' => Auth::user()->can('delete_permission'),
+            'edit' => Auth::user()->can('edit_permission')
+        ], 'roles' => $roles, 'permissions' => $permissions, "options" => $options]);
     }
 
     /**
@@ -60,9 +74,9 @@ class PermissionController extends Controller
             if ($request->role) {
                 $permission->syncRoles($request->role);
             }
-            if (!$permission->hasRole('super_admin')) {
-                $permission->assignRole('super_admin');
-            }
+            // if (!$permission->hasRole('super_admin')) {
+            //     $permission->assignRole('super_admin');
+            // }
 
             return Redirect::back()->with('success', 'Permission Updated SuccessFully!!!');
         } else {
@@ -77,9 +91,9 @@ class PermissionController extends Controller
             if ($request->role) {
                 $permission->syncRoles($request->role);
             }
-            if (!$permission->hasRole('super_admin')) {
-                $permission->assignRole('super_admin');
-            }
+            // if (!$permission->hasRole('super_admin')) {
+            //     $permission->assignRole('super_admin');
+            // }
         }
         return Redirect::back()->with('success', 'Permission Created Successfully!!!');
     }

@@ -5,20 +5,38 @@
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Products</h2>
     </template>
-    <span v-if="$page.props.flash.success">
-      {{ success($page.props.flash.success) }}
-    </span>
-    <span v-if="$page.props.flash.error">
-      {{ error($page.props.flash.error) }}
-    </span>
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-5 text-center">
+            <div v-if="$page.props.flash.success">
+              <FlashMessage
+                type="success"
+                :message="$page.props.flash.success"
+                :show="true"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.error">
+              <FlashMessage
+                type="error"
+                :show="true"
+                :message="$page.props.flash.error"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.warning">
+              <FlashMessage
+                :show="true"
+                type="warning"
+                :message="$page.props.flash.warning"
+              ></FlashMessage>
+            </div>
+          </div>
           <div className="p-6 bg-white border-b border-gray-200">
             <div className="flow-root">
               <p className="float-left">Product List</p>
               <p className="float-right">
                 <Link
+                  v-if="can.add"
                   :href="route('manage.products.create')"
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
@@ -37,12 +55,14 @@
                   <th scope="col" className="py-3 px-6">Description</th>
                   <th scope="col" className="py-3 px-6">Price</th>
                   <th scope="col" className="py-3 px-6">Quantity</th>
-                  <th scope="col" className="py-3 px-6">Action</th>
+                  <th v-if="can.edit || can.delete" scope="col" className="py-3 px-6">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="product in products"
+                  v-for="product in products.data"
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <th
@@ -62,12 +82,14 @@
 
                   <td className="py-4 px-6">
                     <a
+                      v-if="can.edit"
                       :href="route('manage.products.edit', product.id)"
                       className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
                     >
                       Edit
                     </a>
                     <a
+                      v-if="can.delete"
                       @click="destroyProduct(product.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
@@ -76,6 +98,9 @@
                 </tr>
               </tbody>
             </table>
+            <div className="float-right">
+              <Pagination class="mt-6" :links="products.links" />
+            </div>
           </div>
         </div>
       </div>
@@ -91,10 +116,12 @@ import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
+import Pagination from "@/Components/Pagination.vue";
 
 defineProps({
   options: Object,
   products: Object,
+  can: Object,
 });
 
 const productForm = useForm({
@@ -124,20 +151,6 @@ const destroyProduct = (id) => {
     if (result.isConfirmed) {
       productForm.delete(route("manage.products.destroy", id));
     }
-  });
-};
-const success = (success) => {
-  Swal.fire({
-    title: "Wow!",
-    text: success,
-    icon: "success",
-  });
-};
-const error = (error) => {
-  Swal.fire({
-    title: "Oh!",
-    text: error,
-    icon: "error",
   });
 };
 </script>

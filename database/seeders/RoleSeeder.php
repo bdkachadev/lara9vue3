@@ -16,8 +16,11 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        Role::insert([["name" => "super_admin", "guard_name" => "web"], ["name" => "admin", "guard_name" => "web"], ["name" => "user", "guard_name" => "web"]]);
-        $user = User::where("name", "Super Admin")->first();
-        $user->syncRoles('super_admin');
+        Role::insert([
+            ["name" => "super_admin", "guard_name" => "web"],
+            ["name" => "admin", "guard_name" => "web"],
+            ["name" => "manager", "guard_name" => "web"],
+            ["name" => "user", "guard_name" => "web"]
+        ]);
     }
 }

@@ -9,9 +9,18 @@ use Spatie\Permission\Models\Permission;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
+use Illuminate\Support\Facades\Auth;
+
 
 class RoleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_role', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_role', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_role', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_role', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -22,7 +31,13 @@ class RoleController extends Controller
         $roles = Role::with('permissions')->whereNotIn('name', ['super_admin'])->get();
         $permissions = Permission::all();
         $options = array_column($permissions->toArray(), "name");
-        return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions, "options" => $options]);
+        return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions, "options" => $options, 'can' => [
+            'add' => Auth::user()->can('add_role'),
+            'edit' => auth()->user()->can('edit_role'),
+            'delete' => auth()->user()->can('delete_role'),
+            'show' => auth()->user()->can('show_role'),
+
+        ]]);
     }
 
     /**

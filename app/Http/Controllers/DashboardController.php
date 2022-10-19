@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Product;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -14,7 +16,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Dashboard');
+        $productsCount = Product::count();
+        $usersCount = User::whereNot('id', 1)->count();
+        return Inertia::render('Dashboard', ["productsCount" => $productsCount, "usersCount" => $usersCount]);
     }
 
     /**

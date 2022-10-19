@@ -6,43 +6,62 @@
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Roles</h2>
     </template>
 
-    <div v-if="$page.props.flash.success">
-      {{ success($page.props.flash.success) }}
-    </div>
-    <div v-if="$page.props.flash.error">
-      {{ error($page.props.flash.error) }}
-    </div>
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-12 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div className="p-6 bg-white border-b border-gray-200">
-            <div className="flow-root">
-              <p className="float-left">Add / Edit Roles</p>
+          <div class="p-5 text-center">
+            <div v-if="$page.props.flash.success">
+              <FlashMessage
+                type="success"
+                :message="$page.props.flash.success"
+                :show="true"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.error">
+              <FlashMessage
+                type="error"
+                :show="true"
+                :message="$page.props.flash.error"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.warning">
+              <FlashMessage
+                :show="true"
+                type="warning"
+                :message="$page.props.flash.warning"
+              ></FlashMessage>
             </div>
           </div>
-          <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
-            <form
-              ref="formRole"
-              className="bg-white shadow-md rounded px-8 pt-6 pb-8"
-              @submit.prevent="submitRole"
-            >
-              <input v-model="roleForm.id" type="hidden" value="" />
-              <div className="mb-4">
-                <BreezeLabel for="name" value="Name" />
-                <BreezeInput
-                  id="name"
-                  type="text"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                  v-model="roleForm.name"
-                  autofocus
-                />
-
-                <span className="text-red-600" v-if="roleForm.errors.name">
-                  {{ roleForm.errors.name }}
-                </span>
+          <div v-if="can.add || can.edit">
+            <div className="p-6 bg-white border-b border-gray-200">
+              <div className="flow-root">
+                <p className="float-left">Add / Edit Roles</p>
               </div>
-              <div className="mb-4">
-                <!-- <BreezeLabel for="permission" value="Permissions" />
+            </div>
+
+            <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
+              <form
+                ref="formRole"
+                className="bg-white shadow-md rounded px-8 pt-6 pb-8"
+                @submit.prevent="submitRole"
+              >
+                <input v-model="roleForm.id" type="hidden" value="" />
+                <div className="mb-4">
+                  <BreezeLabel for="name" value="Name" />
+                  <BreezeInput
+                    id="name"
+                    type="text"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                    v-model="roleForm.name"
+                    autofocus
+                  />
+
+                  <span className="text-red-600" v-if="roleForm.errors.name">
+                    {{ roleForm.errors.name }}
+                  </span>
+                </div>
+                <div className="mb-4">
+                  <!-- <BreezeLabel for="permission" value="Permissions" />
                 <select
                   id="permission"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
@@ -62,10 +81,10 @@
                   {{ roleForm.errors.name }}
                 </span> -->
 
-                <div>
-                  <BreezeLabel for="name" value="Given Permission To Role" />
+                  <div>
+                    <BreezeLabel for="name" value="Given Permission To Role" />
 
-                  <!-- <multiselect
+                    <!-- <multiselect
                     v-model="roleForm.permission"
                     :options="options"
                     :multiple="true"
@@ -87,28 +106,29 @@
                   </multiselect> 
                   <pre className="language-json"><code>{{ value  }}</code></pre> -->
 
-                  <Multiselect
-                    mode="tags"
-                    :close-on-select="false"
-                    :searchable="true"
-                    :create-option="true"
-                    v-model="roleForm.permission"
-                    :options="options"
-                  />
-                  <span className="text-red-600" v-if="roleForm.errors.permission">
-                    {{ roleForm.errors.permission }}
-                  </span>
+                    <Multiselect
+                      mode="tags"
+                      :close-on-select="false"
+                      :searchable="true"
+                      :create-option="true"
+                      v-model="roleForm.permission"
+                      :options="options"
+                    />
+                    <span className="text-red-600" v-if="roleForm.errors.permission">
+                      {{ roleForm.errors.permission }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="submit"
-                >
-                  Save
-                </button>
-              </div>
-            </form>
+                <div className="flex items-center justify-between">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    type="submit"
+                  >
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
@@ -175,7 +195,9 @@
                 <tr>
                   <th scope="col" className="py-3 px-6">Role name</th>
                   <th scope="col" className="py-3 px-6">Given Permissions</th>
-                  <th scope="col" className="py-3 px-6">Action</th>
+                  <th v-if="can.edit || can.delete" scope="col" className="py-3 px-6">
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -203,11 +225,13 @@
 
                   <td className="py-4 px-6">
                     <a
+                      v-if="can.edit"
                       @click="editRole(role.id)"
                       className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
+                      v-if="can.delete"
                       @click="destroyRole(role.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
@@ -238,6 +262,7 @@ defineProps({
   permissions: Object,
   options: Object,
   errors: Object,
+  can: Object,
 });
 
 const roleForm = useForm({
@@ -299,27 +324,6 @@ const destroyRole = (id) => {
     if (result.isConfirmed) {
       roleForm.delete(route("manage.roles.destroy", id));
     }
-  });
-};
-const success = (success) => {
-  Swal.fire({
-    title: "Wow!",
-    text: success,
-    icon: "success",
-  });
-};
-const error = (error) => {
-  Swal.fire({
-    title: "Oh!",
-    text: error,
-    icon: "error",
-  });
-};
-const warning = (warning) => {
-  Swal.fire({
-    title: "Warning!",
-    text: warning,
-    icon: "warning",
   });
 };
 </script>

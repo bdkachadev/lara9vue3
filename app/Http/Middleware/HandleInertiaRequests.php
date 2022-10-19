@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
         return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user(),
+                'roles' => $request->user() ? array_column($request->user()->roles->toArray(), 'name') : null,
             ],
             'ziggy' => function () use ($request) {
                 return array_merge((new Ziggy)->toArray(), [
@@ -45,9 +46,19 @@ class HandleInertiaRequests extends Middleware
             },
             'flash' => [
                 'success' => fn () => session('success'),
+                'warning' => fn () => session('warning'),
                 'error' => fn () => session('error')
 
             ],
+
+            // Synchronously
+            //  'appName' => config('app.name'),
+
+            // Lazily
+            //  'auth.user' => fn () => $request->user()
+            //      ? $request->user()->only('id', 'name', 'email')
+            //      : null,
+
         ]);
     }
 }

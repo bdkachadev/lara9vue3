@@ -1,19 +1,36 @@
 <template>
-  <Head title="products" />
+  <Head title="Products" />
 
   <AuthenticatedLayout>
     <template #header>
-      <h2 className="font-semibold text-xl text-gray-800 leading-tight">products</h2>
+      <h2 className="font-semibold text-xl text-gray-800 leading-tight">Products</h2>
     </template>
-    <span v-if="$page.props.flash.success">
-      {{ success($page.props.flash.success) }}
-    </span>
-    <span v-if="$page.props.flash.error">
-      {{ error($page.props.flash.error) }}
-    </span>
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+          <div class="p-5 text-center">
+            <div v-if="$page.props.flash.success">
+              <FlashMessage
+                type="success"
+                :message="$page.props.flash.success"
+                :show="true"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.error">
+              <FlashMessage
+                type="error"
+                :show="true"
+                :message="$page.props.flash.error"
+              ></FlashMessage>
+            </div>
+            <div v-if="$page.props.flash.warning">
+              <FlashMessage
+                :show="true"
+                type="warning"
+                :message="$page.props.flash.warning"
+              ></FlashMessage>
+            </div>
+          </div>
           <div className="p-6 bg-white border-b border-gray-200">
             <div className="flow-root">
               <p className="float-left">Add Product</p>
@@ -82,6 +99,26 @@
                   {{ productForm.errors.quantity }}
                 </span>
               </div>
+              <div className="mb-4">
+                <BreezeLabel for="image" value="Image" />
+                <BreezeInput
+                  type="file"
+                  ref="photo"
+                  @change="previewImage"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  v-model="productForm.image"
+                  autofocus
+                />
+                <img
+                  v-if="productForm.image_url"
+                  :src="productForm.image_url"
+                  className="w-full mt-4 h-80"
+                />
+
+                <span className="text-red-600" v-if="productForm.errors.image">
+                  {{ productForm.errors.image }}
+                </span>
+              </div>
               <div className="flex items-center justify-between">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -99,6 +136,7 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Head } from "@inertiajs/inertia-vue3";
 import BreezeLabel from "@/Components/InputLabel.vue";
@@ -111,6 +149,7 @@ const props = defineProps({
   options: Object,
   products: Object,
 });
+const photo = ref(null);
 
 const productForm = useForm({
   description: "",
@@ -118,14 +157,21 @@ const productForm = useForm({
   price: "",
   quantity: "",
   title: "",
+  image: null,
+  image_url: null,
 });
 
-const submitProduct = (event) => {
+const submitProduct = () => {
   productForm.post(route("manage.products.store"), {
     onFinish: () => event.target.reset(),
   });
 };
+const previewImage = (e) => {
+  const file = e.target.files[0];
+  productForm.image_url = URL.createObjectURL(file);
+  productForm.image = file;
 
+};
 const editProduct = (id) => {
   axios.get(route("manage.products.edit", id)).then((res) => {
     var roles = res.data.roles.map((item) => item.name);
@@ -152,20 +198,6 @@ const destroyProduct = (id) => {
     if (result.isConfirmed) {
       productForm.delete(route("manage.products.destroy", id));
     }
-  });
-};
-const success = (success) => {
-  Swal.fire({
-    title: "Wow!",
-    text: success,
-    icon: "success",
-  });
-};
-const error = (error) => {
-  Swal.fire({
-    title: "Oh!",
-    text: error,
-    icon: "error",
   });
 };
 </script>

@@ -17,24 +17,47 @@ class PermissionSeeder extends Seeder
      */
     public function run()
     {
-        $permissions = [
-            'add_user',
-            'edit_user',
-            'delete_user',
+        $admin_permissions = [
+            "add_user",
+            "edit_user",
+            "delete_user",
+            "show_user",
 
-            'add_role',
-            'edit_role',
-            'delete_role',
+            "add_role",
+            "edit_role",
+            "delete_role",
+            "show_role",
 
-            'add_permission',
-            'edit_permission',
-            'delete_permission',
+            "add_permission",
+            "edit_permission",
+            "delete_permission",
+            "show_permission",
+
+            "add_product",
+            "edit_product",
+            "delete_product",
+            "show_product"
 
         ];
-        foreach ($permissions as $p) {
+        $manager_permissions = [
+            "add_product",
+            "edit_product",
+            "delete_product",
+            "show_product"
+        ];
+        $user_permissions = [
+            "show_product"
+        ];
+        foreach ($admin_permissions as $p) {
             $role = Permission::insert(["name" => $p, "guard_name" => "web"]);
         }
-        $role = Role::findByName('super_admin');
-        $role->syncPermissions($permissions);
+        $role = Role::findByName('admin');
+        $role->syncPermissions($admin_permissions);
+
+        $role = Role::findByName('manager');
+        $role->syncPermissions($manager_permissions);
+
+        $role = Role::findByName('user');
+        $role->syncPermissions($user_permissions);
     }
 }

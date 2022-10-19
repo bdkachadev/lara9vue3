@@ -1,13 +1,16 @@
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import NavLink from "@/Components/NavLink.vue";
 import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
-import { Link } from "@inertiajs/inertia-vue3";
+import { usePage, Link } from "@inertiajs/inertia-vue3";
 
 const showingNavigationDropdown = ref(false);
+
+const allowRoles = ["super_admin", "admin"];
+const allowRoles1 = ["user", "admin", "manager"];
 </script>
 
 <template>
@@ -35,6 +38,12 @@ const showingNavigationDropdown = ref(false);
                 </NavLink>
 
                 <NavLink
+                  v-if="
+                    $page.props.auth.roles &&
+                    allowRoles.some((value) => {
+                      return $page.props.auth.roles.indexOf(value) !== -1;
+                    })
+                  "
                   :href="route('manage.users.index')"
                   :active="route().current('manage.users.index')"
                 >
@@ -42,6 +51,12 @@ const showingNavigationDropdown = ref(false);
                 </NavLink>
 
                 <NavLink
+                  v-if="
+                    $page.props.auth.roles.length &&
+                    allowRoles.some((value) => {
+                      return $page.props.auth.roles.indexOf(value) !== -1;
+                    })
+                  "
                   :href="route('manage.roles.index')"
                   :active="route().current('manage.roles.index')"
                 >
@@ -49,6 +64,12 @@ const showingNavigationDropdown = ref(false);
                 </NavLink>
 
                 <NavLink
+                  v-if="
+                    $page.props.auth.roles.length &&
+                    allowRoles.some((value) => {
+                      return $page.props.auth.roles.indexOf(value) !== -1;
+                    })
+                  "
                   :href="route('manage.permissions.index')"
                   :active="route().current('manage.permissions.index')"
                 >
@@ -56,6 +77,12 @@ const showingNavigationDropdown = ref(false);
                 </NavLink>
 
                 <NavLink
+                  v-if="
+                    $page.props.auth.roles &&
+                    allowRoles1.some((value) => {
+                      return $page.props.auth.roles.indexOf(value) !== -1;
+                    })
+                  "
                   :href="route('manage.products.index')"
                   :active="route().current('manage.products.index')"
                 >

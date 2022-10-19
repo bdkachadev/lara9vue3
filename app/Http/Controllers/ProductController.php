@@ -7,9 +7,17 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_product', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_product', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_product', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_product', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,8 +25,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::get();
-        return Inertia::render('Product/Index', ['products' => $products]);
+        $products = Product::latest()->paginate(10);
+        return Inertia::render('Product/Index', ['products' => $products, 'can' => [
+            'show' => Auth::user()->can('show_product'),
+            'add' => Auth::user()->can('add_product'),
+            'delete' => Auth::user()->can('delete_product'),
+            'edit' => Auth::user()->can('edit_product'),
+
+        ]]);
     }
 
     /**
@@ -40,31 +54,40 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->hasFile('image')) {
+            $image_path = $request->file('image')->store('image', 'public');
+        }
+
         $validator =  Validator::make($request->all(), [
             'title' => ['required'],
             'description' => ['required'],
             'price' => ['required'],
             'quantity' => ['required'],
+            'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg|max:2048'
+
         ])->validate();
 
         // if ($validator->fails()) {
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
 
-
-        $user = Product::where("title", $request->title)->first();
-        if ($user) {
+        $image_path = '';
+        if ($request->hasFile('image')) {
+            $image_path = $request->file('image')->store('image', 'public');
+        }
+        $product = Product::where("title", $request->title)->first();
+        if ($product) {
             return Redirect::back()->with('error', 'Product Already Exist !!!');
         }
-        $user = new Product;
-        $user->title = $request->title;
-        $user->description = $request->description;
-        $user->price = $request->price;
-        $user->quantity = $request->quantity;
-        $user->description = $request->description;
-        $user->save();
-
-        return Redirect::back()->with('success', 'Product Created Successfully!!!');
+        $product = new Product;
+        $product->title = $request->title;
+        $product->description = $request->description;
+        $product->price = $request->price;
+        $product->quantity = $request->quantity;
+        $product->description = $request->description;
+        $product->image = $image_path;
+        $product->save();
+        return Redirect::route('manage.products.index')->with('success', 'Product Created Successfully!!!');
     }
 
     /**
