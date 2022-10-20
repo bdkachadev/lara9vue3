@@ -28,7 +28,13 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(RouteServiceProvider::HOME);
+        $roles = auth()->user()->roles->toArray();
+        if (count($roles) == 1 && $roles[0]['name'] === "user") {
+            $redirect = RouteServiceProvider::CLIENT_HOME;
+        } else {
+            $redirect = RouteServiceProvider::ADMIN_HOME;
+        }
+        $response->assertRedirect($redirect);
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()

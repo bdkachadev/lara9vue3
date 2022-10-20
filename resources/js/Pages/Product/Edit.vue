@@ -99,6 +99,22 @@
                   {{ productForm.errors.quantity }}
                 </span>
               </div>
+              <div className="mb-4">
+                <BreezeLabel for="image" value="Image" />
+                <BreezeInput
+                  type="file"
+                  @change="onFileChange"
+                  @input="productForm.image = $event.target.files[0]"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                  autofocus
+                />
+                <img v-if="url" :src="url" class="w-full" />
+                <img v-else :src="product.image" class="w-full" />
+
+                <span className="text-red-600" v-if="productForm.errors.image">
+                  {{ productForm.errors.image }}
+                </span>
+              </div>
               <div className="flex items-center justify-between">
                 <button
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -126,6 +142,7 @@ import Multiselect from "@vueform/multiselect";
 
 const props = defineProps({
   product: Object,
+  url: null,
 });
 
 const productForm = useForm({
@@ -134,11 +151,16 @@ const productForm = useForm({
   price: props.product.price,
   quantity: props.product.quantity,
   title: props.product.title,
+  image: null,
 });
 
+const onFileChange = (e) => {
+  const file = e.target.files[0];
+  props.url = URL.createObjectURL(file);
+};
 const updateProduct = (event) => {
   productForm.put(route("manage.products.update", props.product.id), {
-    onFinish: () => event.target.reset(),
+    onFinish: () => console.log(""),
   });
 };
 </script>

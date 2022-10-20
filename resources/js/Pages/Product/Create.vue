@@ -103,16 +103,9 @@
                 <BreezeLabel for="image" value="Image" />
                 <BreezeInput
                   type="file"
-                  ref="photo"
-                  @change="previewImage"
+                  @input="productForm.image = $event.target.files[0]"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                  v-model="productForm.image"
                   autofocus
-                />
-                <img
-                  v-if="productForm.image_url"
-                  :src="productForm.image_url"
-                  className="w-full mt-4 h-80"
                 />
 
                 <span className="text-red-600" v-if="productForm.errors.image">
@@ -158,19 +151,12 @@ const productForm = useForm({
   quantity: "",
   title: "",
   image: null,
-  image_url: null,
 });
 
 const submitProduct = () => {
   productForm.post(route("manage.products.store"), {
     onFinish: () => event.target.reset(),
   });
-};
-const previewImage = (e) => {
-  const file = e.target.files[0];
-  productForm.image_url = URL.createObjectURL(file);
-  productForm.image = file;
-
 };
 const editProduct = (id) => {
   axios.get(route("manage.products.edit", id)).then((res) => {

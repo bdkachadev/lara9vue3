@@ -51,6 +51,7 @@
                 className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
               >
                 <tr>
+                  <th scope="col" className="py-3 px-6">Image</th>
                   <th scope="col" className="py-3 px-6">Title</th>
                   <th scope="col" className="py-3 px-6">Description</th>
                   <th scope="col" className="py-3 px-6">Price</th>
@@ -65,6 +66,9 @@
                   v-for="product in products.data"
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
+                  <td className="py-4 px-6">
+                    <img :src="product.image" width="200" height="200" />
+                  </td>
                   <th
                     scope="row"
                     className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"

@@ -43,7 +43,13 @@ class EmailVerificationTest extends TestCase
 
         Event::assertDispatched(Verified::class);
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        $response->assertRedirect(RouteServiceProvider::HOME.'?verified=1');
+        $roles = auth()->user()->roles->toArray();
+        if (count($roles) == 1 && $roles[0]['name'] === "user") {
+            $redirect = RouteServiceProvider::CLIENT_HOME;
+        } else {
+            $redirect = RouteServiceProvider::ADMIN_HOME;
+        }
+        $response->assertRedirect($redirect . '?verified=1');
     }
 
     public function test_email_is_not_verified_with_invalid_hash()

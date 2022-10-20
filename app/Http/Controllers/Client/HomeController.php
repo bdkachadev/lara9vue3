@@ -1,14 +1,19 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
 use Inertia\Inertia;
 
-class DashboardController extends Controller
+class HomeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_home', ['only' => ['index', 'show']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,7 +23,10 @@ class DashboardController extends Controller
     {
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
-        return Inertia::render('Dashboard', ["productsCount" => $productsCount, "usersCount" => $usersCount]);
+        return Inertia::render('Client/Home', [["can" => [
+            'show' => auth()->user()->can('show_home'),
+
+        ]], "productsCount" => $productsCount, "usersCount" => $usersCount]);
     }
 
     /**

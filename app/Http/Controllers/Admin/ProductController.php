@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -54,9 +55,9 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->hasFile('image')) {
-            $image_path = $request->file('image')->store('image', 'public');
-        }
+        // if ($request->hasFile('image')) {
+        //     $image_path = $request->file('image')->store('image', 'public');
+        // }
 
         $validator =  Validator::make($request->all(), [
             'title' => ['required'],
@@ -71,9 +72,10 @@ class ProductController extends Controller
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
 
-        $image_path = '';
+        $image_name = "";
         if ($request->hasFile('image')) {
-            $image_path = $request->file('image')->store('image', 'public');
+            $image_name = time() . '_' . str_replace(" ", "_", $request->image->getClientOriginalName());
+            $request->file('image')->move(public_path('uploads'), $image_name);
         }
         $product = Product::where("title", $request->title)->first();
         if ($product) {
@@ -85,7 +87,7 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->description = $request->description;
-        $product->image = $image_path;
+        $product->image = url('/') . "/uploads/" . $image_name;
         $product->save();
         return Redirect::route('manage.products.index')->with('success', 'Product Created Successfully!!!');
     }
@@ -121,17 +123,32 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
-        $validator =  Validator::make($request->all(), [
-            'title' => ['required'],
-            'description' => ['required'],
-            'price' => ['required'],
-            'quantity' => ['required'],
-        ])->validate();
-
         // if ($validator->fails()) {
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
+        if ($request->hasFile('image')) {
+            dd('bb');
+            Validator::make($request->all(), [
+                'title' => ['required'],
+                'description' => ['required'],
+                'price' => ['required'],
+                'quantity' => ['required'],
+                'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg|max:2048'
+
+            ])->validate();
+            $image_name = time() . '_' . str_replace(" ", "_", $request->image->getClientOriginalName());
+            $request->file('image')->move(public_path('uploads'), $image_name);
+            $product->image = url('/') . "/uploads/" . $image_name;
+        } else {
+            Validator::make($request->all(), [
+                'title' => ['required'],
+                'description' => ['required'],
+                'price' => ['required'],
+                'quantity' => ['required'],
+
+            ])->validate();
+            $product->image = $product->image;
+        }
         $product->title = $request->title;
         $product->description = $request->description;
         $product->price = $request->price;

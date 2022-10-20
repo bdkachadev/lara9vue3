@@ -8,9 +8,6 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
 
 const showingNavigationDropdown = ref(false);
-
-const allowRoles = ["super_admin", "admin"];
-const allowRoles1 = ["user", "admin", "manager"];
 </script>
 
 <template>
@@ -23,7 +20,13 @@ const allowRoles1 = ["user", "admin", "manager"];
             <div class="flex">
               <!-- Logo -->
               <div class="shrink-0 flex items-center">
-                <Link :href="route('dashboard')">
+                <Link
+                  v-if="$page.props.auth.role && $page.props.auth.role !== 'user'"
+                  :href="route('dashboard')"
+                >
+                  <ApplicationLogo class="block h-9 w-auto" />
+                </Link>
+                <Link v-else :href="route('home')">
                   <ApplicationLogo class="block h-9 w-auto" />
                 </Link>
               </div>
@@ -31,6 +34,7 @@ const allowRoles1 = ["user", "admin", "manager"];
               <!-- Navigation Links -->
               <div class="hidden space-x-2 sm:-my-px sm:ml-10 sm:flex">
                 <NavLink
+                  v-if="$page.props.auth.role && $page.props.auth.role !== 'user'"
                   :href="route('dashboard')"
                   :active="route().current('dashboard')"
                 >
@@ -38,11 +42,18 @@ const allowRoles1 = ["user", "admin", "manager"];
                 </NavLink>
 
                 <NavLink
+                  v-if="$page.props.auth.role && $page.props.auth.role === 'user'"
+                  :href="route('home')"
+                  :active="route().current('home')"
+                >
+                  Home
+                </NavLink>
+
+                <NavLink
                   v-if="
-                    $page.props.auth.roles &&
-                    allowRoles.some((value) => {
-                      return $page.props.auth.roles.indexOf(value) !== -1;
-                    })
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin')
                   "
                   :href="route('manage.users.index')"
                   :active="route().current('manage.users.index')"
@@ -52,10 +63,9 @@ const allowRoles1 = ["user", "admin", "manager"];
 
                 <NavLink
                   v-if="
-                    $page.props.auth.roles.length &&
-                    allowRoles.some((value) => {
-                      return $page.props.auth.roles.indexOf(value) !== -1;
-                    })
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin')
                   "
                   :href="route('manage.roles.index')"
                   :active="route().current('manage.roles.index')"
@@ -65,10 +75,9 @@ const allowRoles1 = ["user", "admin", "manager"];
 
                 <NavLink
                   v-if="
-                    $page.props.auth.roles.length &&
-                    allowRoles.some((value) => {
-                      return $page.props.auth.roles.indexOf(value) !== -1;
-                    })
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin')
                   "
                   :href="route('manage.permissions.index')"
                   :active="route().current('manage.permissions.index')"
@@ -78,10 +87,10 @@ const allowRoles1 = ["user", "admin", "manager"];
 
                 <NavLink
                   v-if="
-                    $page.props.auth.roles &&
-                    allowRoles1.some((value) => {
-                      return $page.props.auth.roles.indexOf(value) !== -1;
-                    })
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin' ||
+                      $page.props.auth.role === 'manager')
                   "
                   :href="route('manage.products.index')"
                   :active="route().current('manage.products.index')"

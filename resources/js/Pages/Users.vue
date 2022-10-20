@@ -75,7 +75,6 @@
                 <div className="mb-2">
                   <BreezeLabel for="name" value="Assign Role To User" />
                   <Multiselect
-                    mode="tags"
                     :close-on-select="false"
                     :searchable="true"
                     :create-option="true"
