@@ -126,29 +126,15 @@ class ProductController extends Controller
         // if ($validator->fails()) {
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
-        if ($request->hasFile('image')) {
-            dd('bb');
-            Validator::make($request->all(), [
-                'title' => ['required'],
-                'description' => ['required'],
-                'price' => ['required'],
-                'quantity' => ['required'],
-                'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg|max:2048'
 
-            ])->validate();
-            $image_name = time() . '_' . str_replace(" ", "_", $request->image->getClientOriginalName());
-            $request->file('image')->move(public_path('uploads'), $image_name);
-            $product->image = url('/') . "/uploads/" . $image_name;
-        } else {
-            Validator::make($request->all(), [
-                'title' => ['required'],
-                'description' => ['required'],
-                'price' => ['required'],
-                'quantity' => ['required'],
+        Validator::make($request->all(), [
+            'title' => ['required'],
+            'description' => ['required'],
+            'price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+            'quantity' => 'digits_between:1,3',
+            "description" => "required"
+        ])->validate();
 
-            ])->validate();
-            $product->image = $product->image;
-        }
         $product->title = $request->title;
         $product->description = $request->description;
         $product->price = $request->price;

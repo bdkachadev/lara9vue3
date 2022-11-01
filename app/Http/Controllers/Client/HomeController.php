@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Cart;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -23,10 +24,10 @@ class HomeController extends Controller
     {
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
+        $products = Product::all();
         return Inertia::render('Client/Home', [["can" => [
             'show' => auth()->user()->can('show_home'),
-
-        ]], "productsCount" => $productsCount, "usersCount" => $usersCount]);
+        ]], "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
     }
 
     /**
@@ -93,5 +94,11 @@ class HomeController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function getCount()
+    {
+        $count = Cart::where('user_id', auth()->user()->id)->count();
+        return $count;
     }
 }

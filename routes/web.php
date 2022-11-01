@@ -3,12 +3,14 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\CartController;
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Client\HomeController;
+use App\Http\Controllers\StripeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,15 +35,23 @@ use App\Http\Controllers\Client\HomeController;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, "index"])->name("dashboard");
     Route::prefix('manage')->name("manage.")->group(function () {
+        Route::get('/carts/clearAllCart', [CartController::class, 'clearAllCart'])->name('carts.clearAllCart');
+        Route::post('/carts/changeQuantity', [CartController::class, "changeQuantity"])->name("carts.changeQuantity");
+        Route::get('/carts/checkout/{id?}', [CartController::class, "checkout"])->name("carts.checkout");
+        Route::post('/carts/removeFromCheckout', [CartController::class, "removeFromCheckout"])->name("carts.removeFromCheckout");
+        Route::post('/checkout/getStripeSession', [StripeController::class, "getStripeSession"])->name("checkout.getStripeSession");
+
         Route::resource('/users', UserController::class);
         Route::resource('/roles', RoleController::class);
         Route::resource('/permissions', PermissionController::class);
         Route::resource('/products', ProductController::class);
+        Route::resource('/carts', CartController::class);
     });
 
-    // client side routesss
+    // client side routes
     Route::get('/home', [HomeController::class, "index"])->name("home");
     Route::get('/', [HomeController::class, "index"])->name("home");
+    Route::get('/getCount', [HomeController::class, "getCount"])->name("getCount");
 });
 
 // Route::middleware(['auth', 'verified'])->group(function () {

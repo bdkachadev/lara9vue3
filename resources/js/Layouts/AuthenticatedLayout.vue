@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onBeforeMount } from "vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
@@ -8,6 +8,14 @@ import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
 import { usePage, Link } from "@inertiajs/inertia-vue3";
 
 const showingNavigationDropdown = ref(false);
+const g_count = ref(0);
+
+onBeforeMount(() => {
+  // console.log("Component is onBeforeMount!");
+  axios.get(route("getCount")).then((res) => {
+    g_count.value = res.data;
+  });
+});
 </script>
 
 <template>
@@ -101,6 +109,31 @@ const showingNavigationDropdown = ref(false);
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ml-6">
+              <NavLink
+                v-if="
+                  $page.props.auth.role &&
+                  ($page.props.auth.role === 'super_admin' ||
+                    $page.props.auth.role === 'admin' ||
+                    $page.props.auth.role === 'manager' ||
+                    $page.props.auth.role === 'user')
+                "
+                :href="route('manage.carts.index')"
+                :active="route().current('manage.carts.index')"
+              >
+                <svg class="flex-1 w-6 h-6 fill-current" viewbox="0 0 24 24">
+                  <path
+                    d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42A0.25,0.25 0 0,1 7.17,14.75C7.17,14.7 7.18,14.66 7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.34 21,5.17 21,5A1,1 0 0,0 20,4H5.21L4.27,2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z"
+                  />
+                </svg>
+                <span
+                  class="absolute right-0 top-0 rounded-full bg-red-600 w-4 h-4 top right p-0 m-0 text-white font-mono text-sm leading-tight text-center"
+                >
+                </span>
+                <span
+                  class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-indigo-500 text-white rounded"
+                  >{{ g_count }}</span
+                >
+              </NavLink>
               <!-- Settings Dropdown -->
               <div class="ml-3 relative">
                 <Dropdown align="right" width="48">
