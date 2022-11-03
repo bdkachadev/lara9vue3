@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\TestController;
+
 use Inertia\Inertia;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -31,10 +33,16 @@ use App\Http\Controllers\StripeController;
 //         'phpVersion' => PHP_VERSION,
 //     ]);
 // });
+Route::get('/test', [TestController::class, 'test']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, "index"])->name("dashboard");
     Route::prefix('manage')->name("manage.")->group(function () {
+
+        // product detail page
+        Route::get('/products/detail/{id}', [ProductController::class, 'detail'])->name('products.detail');
+
+
         Route::get('/carts/clearAllCart', [CartController::class, 'clearAllCart'])->name('carts.clearAllCart');
         Route::post('/carts/changeQuantity', [CartController::class, "changeQuantity"])->name("carts.changeQuantity");
         Route::get('/carts/checkout/{id?}', [CartController::class, "checkout"])->name("carts.checkout");

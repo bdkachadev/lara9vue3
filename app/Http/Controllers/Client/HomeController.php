@@ -98,7 +98,7 @@ class HomeController extends Controller
 
     public function getCount()
     {
-        $count = Cart::where('user_id', auth()->user()->id)->count();
+        $count = Cart::where('user_id', auth()->user()->id)->sum('quantity');
         return $count;
     }
 }

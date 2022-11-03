@@ -157,4 +157,10 @@ class ProductController extends Controller
         $product->delete();
         return Redirect::back()->with("success", "Product Deleted Successfully");
     }
+
+    public function detail($id)
+    {
+        $product = Product::find($id);
+        return Inertia::render('Client/Product/Detail', ['product' => $product]);
+    }
 }

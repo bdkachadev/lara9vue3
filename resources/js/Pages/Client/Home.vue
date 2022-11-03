@@ -12,17 +12,18 @@
           v-for="product in products"
           class="card flex flex-col justify-center p-10 bg-white rounded-lg shadow-2xl sm:w-1/4"
         >
-          <div class="prod-title">
-            <p class="text-xl uppercase text-gray-900 font-bold">{{ product.title }}</p>
-            <p class="uppercase text-sm text-gray-600">
-              {{ product.description }}
-            </p>
-          </div>
-          <div class="prod-img">
-            <img :src="product.image" class="w-full h-64 object-cover object-center" />
-          </div>
-          <div class="prod-info grid gap-10">
-            <!-- <div>
+          <a :href="route('manage.products.detail', product.id)">
+            <div class="prod-title">
+              <p class="text-xl uppercase text-gray-900 font-bold">{{ product.title }}</p>
+              <!-- <p class="uppercase text-sm text-gray-600">
+                {{ product.description }}
+              </p> -->
+            </div>
+            <div class="prod-img">
+              <img :src="product.image" class="w-full h-64 object-cover object-center" />
+            </div>
+            <div class="prod-info grid gap-10">
+              <!-- <div>
               <ul class="flex flex-row justify-center items-center">
                 <li class="mr-4 last:mr-0">
                   <span
@@ -57,7 +58,7 @@
                 </li>
               </ul>
             </div> -->
-            <!-- <div
+              <!-- <div
               class="flex flex-col md:flex-row justify-between items-center text-gray-900"
             >
               <button
@@ -99,18 +100,19 @@
                 </svg>
               </button>
             </div> -->
-            <div
-              class="flex flex-col md:flex-row justify-between items-center text-gray-900"
-            >
-              <p class="font-bold text-1xl">{{ product.price }} $</p>
-              <button
-                @click="addToCart(product.id)"
-                class="px-3 py-1 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+              <div
+                class="flex flex-col md:flex-row justify-between items-center text-gray-900"
               >
-                Add to cart
-              </button>
+                <p class="font-bold text-1xl">{{ product.price }} $</p>
+                <!-- <button
+                  @click="addToCart(product.id)"
+                  class="px-3 py-1 transition ease-in duration-200 uppercase rounded-full hover:bg-gray-800 hover:text-white border-2 border-gray-900 focus:outline-none"
+                >
+                  Add to cart
+                </button> -->
+              </div>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </div>

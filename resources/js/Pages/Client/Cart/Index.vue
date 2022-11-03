@@ -35,23 +35,24 @@
             <div className="flow-root">
               <p className="float-left">Cart List</p>
               <p className="float-right" v-if="carts.data.length > 0">
-                <Link
+                <!-- <Link
                   v-if="can.buy"
                   :href="route('manage.carts.checkout')"
                   className=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
                   Buy All
-                </Link>
+                </Link> -->
                 <Link
                   v-if="can.delete"
                   @click="clearAllCart()"
                   className="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
-                  Remove All
+                  Empty Cart
                 </Link>
               </p>
             </div>
           </div>
+
           <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
               <thead
@@ -70,8 +71,10 @@
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 <tr
+                  v-if="carts.data.length > 0"
                   v-for="cart in carts.data"
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
@@ -88,20 +91,13 @@
                   <td className="py-4 px-6">{{ cart.description }}</td>
                   <td className="py-4 px-6">{{ cart.price }}</td>
                   <td className="py-4 px-6">
-                    <select
+                    <input
+                      className="form-control w-20 rounded"
+                      type="number"
+                      min="1"
                       @change="onChangeQuantity(cart, $event)"
                       v-model="cart.quantity"
-                    >
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="6">6</option>
-                      <option value="7">7</option>
-                      <option value="8">8</option>
-                      <option value="9">9</option>
-                    </select>
+                    />
                   </td>
                   <td className="py-4 px-6">{{ cart.price * cart.quantity }}</td>
 
@@ -117,13 +113,13 @@
                     >
                       Edit
                     </a> -->
-                    <a
+                    <!-- <a
                       v-if="can.buy"
                       :href="route('manage.carts.checkout', cart.id)"
                       className="ml-2 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
                     >
                       Buy Now
-                    </a>
+                    </a> -->
                     <a
                       v-if="can.delete"
                       @click="destroyCart(cart.id)"
@@ -134,8 +130,43 @@
                 </tr>
               </tbody>
             </table>
+
             <div className="float-right">
-              <Pagination class="mt-6" :links="carts.links" />
+              <Pagination :links="carts.links" />
+            </div>
+          </div>
+          <div v-if="carts.data.length <= 0" className="mt-5 flex justify-center">
+            Your Cart is Empty Now!
+          </div>
+          <div className="float-right mb-10 " v-if="carts.data.length > 0">
+            <div class="grid grid-cols-2">
+              <div>
+                <div class="flex p-4 mt-4">
+                  <h2 class="text-2xl font-bold">Product Total</h2>
+                </div>
+                <div
+                  class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                >
+                  Subtotal<span class="ml-2">${{ subTotal }}</span>
+                </div>
+                <div
+                  class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                >
+                  Shipping Tax<span class="ml-2">${{ shippingTax }}</span>
+                </div>
+                <div
+                  class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                >
+                  Order Total<span class="ml-2">${{ total }}</span>
+                </div>
+                <a
+                  className="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-indigo-500 text-white rounded    w-full h-10 bg-indig-500 py-2 flex items-center justify-center gap-4 text-xs rounded-lg font-bold text-light shadow-md shadow-indigo hover:brightness-125 transition select-none"
+                  id="add-cart"
+                  :href="route('manage.carts.checkout')"
+                >
+                  Proceed to Checkout
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -160,38 +191,40 @@ defineProps({
   options: Object,
   carts: Object,
   can: Object,
+  subTotal: String,
+  shippingTax: String,
+  total: String,
 });
 
 const onChangeQuantity = (cart, event) => {
-  Swal.fire({
-    title: "Warning!",
-    text: "Are you sure you want to change quantity?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "Yes",
-    cancelButtonText: "Cancel",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      axios
-        .post(route("manage.carts.changeQuantity"), {
-          id: cart.id,
-          quantity: event.target.value,
-        })
-        .then((response) => {
-          window.location.href = route("manage.carts.index");
+  // Swal.fire({
+  //   title: "Warning!",
+  //   text: "Are you sure you want to change quantity?",
+  //   icon: "warning",
+  //   showCancelButton: true,
+  //   confirmButtonColor: "#3085d6",
+  //   cancelButtonColor: "#d33",
+  //   confirmButtonText: "Yes",
+  //   cancelButtonText: "Cancel",
+  // }).then((result) => {
+  //   if (result.isConfirmed) {
+  axios
+    .post(route("manage.carts.changeQuantity"), {
+      id: cart.id,
+      quantity: event.target.value,
+    })
+    .then((response) => {
+      window.location.href = route("manage.carts.index");
 
-          // Swal.fire({
-          //   title: "Wow!",
-          //   text: "All Item are removed from cart Successfully!!",
-          //   icon: "success",
-          // });
-          console.log(response);
-          // quantity.value = event.target.value;
-        });
-    }
-  });
+      // Swal.fire({
+      //   title: "Wow!",
+      //   text: "All Item are removed from cart Successfully!!",
+      //   icon: "success",
+      // });
+      console.log(response);
+    });
+  //   }
+  // });
 };
 
 const productForm = useForm({
@@ -220,6 +253,7 @@ const destroyCart = (id) => {
   }).then((result) => {
     if (result.isConfirmed) {
       productForm.delete(route("manage.carts.destroy", id));
+      window.location.href = route("manage.carts.index");
     }
   });
 };

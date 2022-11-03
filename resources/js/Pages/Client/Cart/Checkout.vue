@@ -44,129 +44,113 @@
                 </Link>
               </p> -->
 
-              <!-- <div class="container p-12 mx-auto">
+              <div class="container p-12 mx-auto">
+                <!-- <form class="justify-center w-full mx-auto"> -->
                 <div class="flex flex-col w-full px-0 mx-auto md:flex-row">
                   <div class="flex flex-col md:w-full">
                     <h2 class="mb-4 font-bold md:text-xl text-heading">
                       Shipping Address
                     </h2>
-                    <form class="justify-center w-full mx-auto">
-                      <div class="">
-                        <div class="space-x-0 lg:flex lg:space-x-4">
-                          <div class="w-full lg:w-1/2">
-                            <label
-                              for="firstName"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                              >First Name</label
-                            >
-                            <input
-                              name="firstName"
-                              type="text"
-                              placeholder="First Name"
-                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            />
-                          </div>
-                          <div class="w-full lg:w-1/2">
-                            <label
-                              for="firstName"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                              >Last Name</label
-                            >
-                            <input
-                              name="Last Name"
-                              type="text"
-                              placeholder="Last Name"
-                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            />
-                          </div>
-                        </div>
-                        <div class="mt-4">
-                          <div class="w-full">
-                            <label
-                              for="Email"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                              >Email</label
-                            >
-                            <input
-                              name="Last Name"
-                              type="text"
-                              placeholder="Email"
-                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            />
-                          </div>
-                        </div>
-                        <div class="mt-4">
-                          <div class="w-full">
-                            <label
-                              for="Address"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                              >Address</label
-                            >
-                            <textarea
-                              class="w-full px-4 py-3 text-xs border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                              name="Address"
-                              cols="20"
-                              rows="4"
-                              placeholder="Address"
-                            ></textarea>
-                          </div>
-                        </div>
-                        <div class="space-x-0 lg:flex lg:space-x-4">
-                          <div class="w-full lg:w-1/2">
-                            <label
-                              for="city"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                              >City</label
-                            >
-                            <input
-                              name="city"
-                              type="text"
-                              placeholder="City"
-                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            />
-                          </div>
-                          <div class="w-full lg:w-1/2">
-                            <label
-                              for="postcode"
-                              class="block mb-3 text-sm font-semibold text-gray-500"
-                            >
-                              Postcode</label
-                            >
-                            <input
-                              name="postcode"
-                              type="text"
-                              placeholder="Post Code"
-                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            />
-                          </div>
-                        </div>
-
-                        <div class="relative pt-3 xl:pt-6">
+                    <div class="">
+                      <div class="mt-4">
+                        <div class="w-full">
                           <label
-                            for="note"
+                            for="Name"
                             class="block mb-3 text-sm font-semibold text-gray-500"
+                            >Name</label
                           >
-                            Notes (Optional)</label
-                          ><textarea
-                            name="note"
-                            class="flex items-center w-full px-4 py-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            rows="4"
-                            placeholder="Notes for delivery"
-                          ></textarea>
-                        </div>
-                        <div class="mt-4">
-                          <button
-                            @click="submit"
-                            class="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
-                          >
-                            Process
-                          </button>
+                          <input
+                            name="Name"
+                            type="text"
+                            placeholder="Name"
+                            v-model="checkoutForm.name"
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          />
                         </div>
                       </div>
-                    </form>
+                      <div class="mt-4">
+                        <div class="w-full">
+                          <label
+                            for="Email"
+                            class="block mb-3 text-sm font-semibold text-gray-500"
+                            >Email</label
+                          >
+                          <input
+                            name="Last Name"
+                            v-model="checkoutForm.email"
+                            type="text"
+                            placeholder="Email"
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          />
+                        </div>
+                      </div>
+                      <div class="mt-4">
+                        <div class="w-full">
+                          <label
+                            for="Address"
+                            class="block mb-3 text-sm font-semibold text-gray-500"
+                            >Address</label
+                          >
+                          <textarea
+                            class="w-full px-4 py-3 text-xs border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            name="Address"
+                            v-model="checkoutForm.address"
+                            cols="20"
+                            rows="4"
+                            placeholder="Address"
+                          ></textarea>
+                        </div>
+                      </div>
+                      <div class="space-x-0 lg:flex lg:space-x-4">
+                        <div class="w-full lg:w-1/2">
+                          <label
+                            for="city"
+                            class="block mb-3 text-sm font-semibold text-gray-500"
+                            >City</label
+                          >
+                          <input
+                            name="city"
+                            v-model="checkoutForm.city"
+                            type="text"
+                            placeholder="City"
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          />
+                        </div>
+                        <div class="w-full lg:w-1/2">
+                          <label
+                            for="postcode"
+                            class="block mb-3 text-sm font-semibold text-gray-500"
+                          >
+                            Postcode</label
+                          >
+                          <input
+                            v-model="checkoutForm.postcode"
+                            name="postcode"
+                            type="text"
+                            placeholder="Post Code"
+                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="relative pt-3 xl:pt-6">
+                        <label
+                          for="note"
+                          class="block mb-3 text-sm font-semibold text-gray-500"
+                        >
+                          Notes (Optional)</label
+                        ><textarea
+                          v-model="checkoutForm.note"
+                          name="note"
+                          class="flex items-center w-full px-4 py-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
+                          rows="4"
+                          placeholder="Notes for delivery"
+                        ></textarea>
+                      </div>
+                    </div>
                   </div>
-                  <div class="flex flex-col w-full ml-0 lg:ml-12 lg:w-2/5">
-                    <div class="pt-12 md:pt-0 2xl:ps-4">
+                  <div class="flex flex-col w-full ml-0 lg:ml-12 lg:w-4/5">
+                    <!-- <div class="pt-12 md:pt-0 2xl:ps-4">
                       <h2 class="text-xl font-bold">Order Summary</h2>
                       <div class="mt-8">
                         <div class="flex flex-col space-y-4">
@@ -219,12 +203,125 @@
                       >
                         Total<span class="ml-2">${{ total }}</span>
                       </div>
+                      </div> -->
+                    <h2 class="mb-4 font-bold md:text-xl text-heading">
+                      Billing Details
+                    </h2>
+                    <div>
+                      <!-- <div class="flex p-4 mt-3">
+                          <h2 class="text-xl font-bold">Your order</h2>
+                        </div> -->
+                      <div
+                        class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                      >
+                        Subtotal<span class="ml-2">${{ subTotal }}</span>
+                      </div>
+                      <div
+                        class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                      >
+                        Shipping Tax<span class="ml-2">${{ shippingTax }}</span>
+                      </div>
+                      <div
+                        class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
+                      >
+                        Order Total<span class="ml-2">${{ total }}</span>
+                      </div>
                     </div>
+                    <form class="justify-center w-full mx-auto">
+                      <div class="">
+                        <div class="mt-4">
+                          <div class="w-full">
+                            <label
+                              for="Email"
+                              class="block mb-3 text-sm font-semibold text-gray-500"
+                              >Card Holder Name*
+                            </label>
+                            <input
+                              name="Name"
+                              type="text"
+                              placeholder="Name"
+                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            />
+                          </div>
+                        </div>
+                        <div class="mt-4">
+                          <div class="w-full">
+                            <label
+                              for="Email"
+                              class="block mb-3 text-sm font-semibold text-gray-500"
+                              >Card Number*
+                            </label>
+                            <input
+                              name="Number"
+                              type="text"
+                              placeholder="Number"
+                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="space-x-0 lg:flex lg:space-x-4 mt-4">
+                          <div class="w-full lg:w-1/2">
+                            <label
+                              for="city"
+                              class="block mb-3 text-sm font-semibold text-gray-500"
+                              >Month</label
+                            >
+                            <input
+                              name="city"
+                              type="text"
+                              placeholder="City"
+                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            />
+                          </div>
+                          <div class="w-full lg:w-1/2">
+                            <label
+                              for="postcode"
+                              class="block mb-3 text-sm font-semibold text-gray-500"
+                            >
+                              Year</label
+                            >
+                            <input
+                              name="postcode"
+                              type="text"
+                              placeholder="Post Code"
+                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            />
+                          </div>
+                        </div>
+
+                        <div class="mt-4">
+                          <div class="w-full">
+                            <label
+                              for="Email"
+                              class="block mb-3 text-sm font-semibold text-gray-500"
+                              >CVV*
+                            </label>
+                            <input
+                              name="Number"
+                              type="text"
+                              placeholder="Number"
+                              class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </form>
                   </div>
                 </div>
-              </div> -->
+                <div class="mt-4">
+                  <StripeCheckout ref="checkoutRef" :pk="publishableKey" mode="payment" />
+                  <button
+                    @click="submit"
+                    class="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
+                  >
+                    Make Payment
+                  </button>
+                </div>
+                <!-- </form> -->
+              </div>
 
-              <StripeCheckout
+              <!-- <StripeCheckout
                 ref="checkoutRef"
                 :pk="publishableKey"
                 :sessionId="sessionId"
@@ -236,7 +333,7 @@
                 >
                   Process
                 </button>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -247,6 +344,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { loadStripe } from "@stripe/stripe-js";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Link, Head } from "@inertiajs/inertia-vue3";
@@ -256,29 +354,63 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import Pagination from "@/Components/Pagination.vue";
-import { StripeCheckout } from "@vue-stripe/vue-stripe";
 
 const publishableKey = ref(
   "pk_test_51LzJ7MSDa845TZYQzfqsQm2cMJAYtMSkPvoML17VRV6gAsPKQ0u7r9Rf8o621D2BMTZ6YZcWCC1Yhrd1gvU4YS3Z00uGK2CLXW"
 );
 var sessionId = ref();
-var checkoutRef = ref();
+const checkoutRef = ref();
 
+// var loading = false;
+// var lineItems =
+//   // price: "some-price-id", // The id of the one-time price you created in your Stripe dashboard
+//   // quantity: 1,
+//   [
+//     {
+//       price_data: {
+//         currency: "inr",
+//         unit_amount: props.total * 100,
+//         product_data: {
+//           name: "Order Payment",
+//         },
+//       },
+//       quantity: 1,
+//     },
+//   ];
+
+// var successURL = route("manage.carts.checkout");
+
+// var cancelURL = route("manage.carts.checkout");
+var stripe = {};
 const props = defineProps({
   carts: Object,
   subTotal: String,
   shippingTax: String,
   total: String,
+  user: Object,
   //   can: Object,
+});
+const checkoutForm = useForm({
+  name: props.user.name,
+  email: props.user.email,
+  address: "",
+  city: "",
+  postcode: "",
+  note: "",
 });
 
 onMounted(() => {
+  // alert(props.user.name);
   axios
     .post(route("manage.checkout.getStripeSession"), {
       price: props.total,
     })
-    .then((response) => {
-      sessionId = response.data.id;
+    .then(async (response) => {
+      // sessionId = response.data.id;
+      stripe = await loadStripe(
+        "pk_test_51LzJ7MSDa845TZYQzfqsQm2cMJAYtMSkPvoML17VRV6gAsPKQ0u7r9Rf8o621D2BMTZ6YZcWCC1Yhrd1gvU4YS3Z00uGK2CLXW"
+      );
+
       // Swal.fire({
       //   title: "Wow!",
       //   text: "All Item are removed from cart Successfully!!",

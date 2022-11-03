@@ -10,6 +10,9 @@ import VueSweetalert2 from 'vue-sweetalert2';
 import Toast, { POSITION } from "vue-toastification";
 import 'sweetalert2/dist/sweetalert2.min.css';
 import "vue-toastification/dist/index.css";
+import "https://js.stripe.com/v3/";
+
+
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 const options = {
     position: POSITION.TOP_RIGHT
