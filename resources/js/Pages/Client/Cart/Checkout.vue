@@ -60,7 +60,6 @@
                             >Name</label
                           >
                           <input
-                            name="Name"
                             type="text"
                             placeholder="Name"
                             v-model="checkoutForm.name"
@@ -76,7 +75,6 @@
                             >Email</label
                           >
                           <input
-                            name="Last Name"
                             v-model="checkoutForm.email"
                             type="text"
                             placeholder="Email"
@@ -92,42 +90,26 @@
                             >Address</label
                           >
                           <textarea
-                            class="w-full px-4 py-3 text-xs border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                            name="Address"
                             v-model="checkoutForm.address"
+                            class="w-full px-4 py-3 text-xs border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             cols="20"
                             rows="4"
                             placeholder="Address"
                           ></textarea>
                         </div>
                       </div>
-                      <div class="space-x-0 lg:flex lg:space-x-4">
-                        <div class="w-full lg:w-1/2">
+
+                      <div class="mt-4">
+                        <div class="w-full">
                           <label
                             for="city"
                             class="block mb-3 text-sm font-semibold text-gray-500"
                             >City</label
                           >
                           <input
-                            name="city"
                             v-model="checkoutForm.city"
                             type="text"
                             placeholder="City"
-                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                          />
-                        </div>
-                        <div class="w-full lg:w-1/2">
-                          <label
-                            for="postcode"
-                            class="block mb-3 text-sm font-semibold text-gray-500"
-                          >
-                            Postcode</label
-                          >
-                          <input
-                            v-model="checkoutForm.postcode"
-                            name="postcode"
-                            type="text"
-                            placeholder="Post Code"
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                           />
                         </div>
@@ -141,7 +123,6 @@
                           Notes (Optional)</label
                         ><textarea
                           v-model="checkoutForm.note"
-                          name="note"
                           class="flex items-center w-full px-4 py-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
                           rows="4"
                           placeholder="Notes for delivery"
@@ -208,9 +189,9 @@
                       Billing Details
                     </h2>
                     <div>
-                      <!-- <div class="flex p-4 mt-3">
-                          <h2 class="text-xl font-bold">Your order</h2>
-                        </div> -->
+                      <div class="flex p-4 mt-3">
+                        <h2 class="text-xl font-bold">Your order</h2>
+                      </div>
                       <div
                         class="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0"
                       >
@@ -237,14 +218,14 @@
                               >Card Holder Name*
                             </label>
                             <input
-                              name="Name"
+                              v-model="checkoutForm.holder_name"
                               type="text"
                               placeholder="Name"
                               class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             />
                           </div>
                         </div>
-                        <div class="mt-4">
+                        <!-- <div class="mt-4">
                           <div class="w-full">
                             <label
                               for="Email"
@@ -288,9 +269,25 @@
                               class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             />
                           </div>
-                        </div>
+                        </div> -->
+                        <input
+                          type="hidden"
+                          class="payment-method"
+                          v-model="checkoutForm.payment_method"
+                        />
 
-                        <div class="mt-4">
+                        <input type="hidden" v-model="checkoutForm.price" />
+                        <input type="hidden" v-model="checkoutForm.cart_ids" />
+
+                        <div class="mt-4 col-lg-4 col-md-6">
+                          <div
+                            id="card-element"
+                            className="w-full px-4 py-3 text-sm
+                            border border-gray-300 rounded lg:text-sm focus:outline-none
+                            focus:ring-1 focus:ring-blue-600"
+                          ></div>
+                        </div>
+                        <!-- <div class="mt-4">
                           <div class="w-full">
                             <label
                               for="Email"
@@ -304,13 +301,13 @@
                               class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             />
                           </div>
-                        </div>
+                        </div> -->
                       </div>
                     </form>
                   </div>
                 </div>
                 <div class="mt-4">
-                  <StripeCheckout ref="checkoutRef" :pk="publishableKey" mode="payment" />
+                  <!-- <StripeCheckout ref="checkoutRef" :pk="publishableKey" mode="payment" /> -->
                   <button
                     @click="submit"
                     class="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
@@ -354,12 +351,13 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import Pagination from "@/Components/Pagination.vue";
-
+// import "https://js.stripe.com/v3/";
+import "https://code.jquery.com/jquery-3.6.1.js";
 const publishableKey = ref(
   "pk_test_51LzJ7MSDa845TZYQzfqsQm2cMJAYtMSkPvoML17VRV6gAsPKQ0u7r9Rf8o621D2BMTZ6YZcWCC1Yhrd1gvU4YS3Z00uGK2CLXW"
 );
 var sessionId = ref();
-const checkoutRef = ref();
+// const checkoutRef = ref();
 
 // var loading = false;
 // var lineItems =
@@ -381,13 +379,18 @@ const checkoutRef = ref();
 // var successURL = route("manage.carts.checkout");
 
 // var cancelURL = route("manage.carts.checkout");
+var paymentMethod = null;
+var cardElelement = {};
 var stripe = {};
+
 const props = defineProps({
   carts: Object,
   subTotal: String,
   shippingTax: String,
   total: String,
   user: Object,
+  intent: Object,
+  cartIds: Object,
   //   can: Object,
 });
 const checkoutForm = useForm({
@@ -395,31 +398,135 @@ const checkoutForm = useForm({
   email: props.user.email,
   address: "",
   city: "",
-  postcode: "",
+  // postcode: "",
   note: "",
+  price: props.total,
+  holder_name: "",
+  payment_method: paymentMethod,
+  cart_ids: props.cartIds,
 });
 
 onMounted(() => {
+  // alert("l");
   // alert(props.user.name);
-  axios
-    .post(route("manage.checkout.getStripeSession"), {
-      price: props.total,
-    })
-    .then(async (response) => {
-      // sessionId = response.data.id;
-      stripe = await loadStripe(
-        "pk_test_51LzJ7MSDa845TZYQzfqsQm2cMJAYtMSkPvoML17VRV6gAsPKQ0u7r9Rf8o621D2BMTZ6YZcWCC1Yhrd1gvU4YS3Z00uGK2CLXW"
-      );
+  // axios
+  //   .post(route("manage.checkout.getStripeSession"), {
+  //     price: props.total,
+  //   })
+  //   .then(async (response) => {
+  //     // sessionId = response.data.id;
+  //     stripe = await loadStripe(
+  //       "pk_test_51LzJ7MSDa845TZYQzfqsQm2cMJAYtMSkPvoML17VRV6gAsPKQ0u7r9Rf8o621D2BMTZ6YZcWCC1Yhrd1gvU4YS3Z00uGK2CLXW"
+  //     );
+  //     // Swal.fire({
+  //     //   title: "Wow!",
+  //     //   text: "All Item are removed from cart Successfully!!",
+  //     //   icon: "success",
+  //     // });
+  //     // window.location.href = route("manage.carts.checkout");
+  //   });
+  stripe = Stripe(
+    "pk_test_51M01BbCroadtmyvPAjR4H8TXqX2ct6ShQXurogA5FEkxvCJPnirt4SeSHPFXPSNyqFq6ZHAvwqIugpCxbPgnLGuR005GEfOPxz"
+  );
 
-      // Swal.fire({
-      //   title: "Wow!",
-      //   text: "All Item are removed from cart Successfully!!",
-      //   icon: "success",
-      // });
-      // window.location.href = route("manage.carts.checkout");
-    });
+  var elements = stripe.elements();
+  var style = {
+    base: {
+      color: "#32325d",
+      fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+      fontSmoothing: "antialiased",
+      fontSize: "16px",
+      "::placeholder": {
+        color: "#aab7c4",
+      },
+    },
+    invalid: {
+      color: "#fa755a",
+      iconColor: "#fa755a",
+    },
+  };
+  var card = elements.create("card", {
+    style: style,
+  });
+  console.log(card);
+  // alert(card);
+  card.mount("#card-element");
+  cardElelement = card;
 });
+const submit = () => {
+  // alert("l");
+  // alert("{{env('STRIPE_KEY')}}");
+  // You will be redirected to Stripe's secure checkout page
+  // checkoutRef.redirectToCheckout();
+  // $("button.pay").attr("disabled", true);
+  // alert(props.intent.client_secret);
+  // alert(checkoutForm.holder_name);
+  // alert(paymentMethod);
+  if (paymentMethod) {
+    // alert("jhkj");
+    return true;
+  }
+  // stripe = Stripe(
+  //   "pk_test_51M01BbCroadtmyvPAjR4H8TXqX2ct6ShQXurogA5FEkxvCJPnirt4SeSHPFXPSNyqFq6ZHAvwqIugpCxbPgnLGuR005GEfOPxz"
+  // );
 
+  // var elements = stripe.elements();
+  // var style = {
+  //   base: {
+  //     color: "#32325d",
+  //     fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+  //     fontSmoothing: "antialiased",
+  //     fontSize: "16px",
+  //     "::placeholder": {
+  //       color: "#aab7c4",
+  //     },
+  //   },
+  //   invalid: {
+  //     color: "#fa755a",
+  //     iconColor: "#fa755a",
+  //   },
+  // };
+  // var card = elements.create("card", {
+  //   style: style,
+  // });
+  console.log(cardElelement);
+  stripe
+    .confirmCardSetup(props.intent.client_secret, {
+      payment_method: {
+        card: cardElelement,
+        billing_details: {
+          // name: $(".card_holder_name").val(),
+          name: checkoutForm.holder_name,
+        },
+      },
+    })
+    .then(function (result) {
+      console.log(result.error);
+      // alert(result.setupIntent.payment_method);
+      if (result.error) {
+        $("#card-errors").text(result.error.message);
+        $("button.pay").removeAttr("disabled");
+      } else {
+        paymentMethod = result.setupIntent.payment_method;
+        // alert(paymentMethod);
+        // $(".payment-method").val(paymentMethod);
+        checkoutForm.payment_method = paymentMethod;
+
+        // $(".card-form").submit();
+        checkoutForm.post(route("manage.checkout.purchase"), {
+          onFinish: () => console.log(""),
+        });
+        // .then(async (response) => {
+        //   // Swal.fire({
+        //   //   title: "Wow!",
+        //   //   text: "All Item are removed from cart Successfully!!",
+        //   //   icon: "success",
+        //   // });
+        //   // window.location.href = route("manage.carts.checkout");
+        // });
+      }
+    });
+};
 const removeFromCheckout = (id) => {
   Swal.fire({
     title: "Warning!",
@@ -446,10 +553,57 @@ const removeFromCheckout = (id) => {
   });
 };
 
-const submit = () => {
-  // You will be redirected to Stripe's secure checkout page
-  checkoutRef.redirectToCheckout();
-};
+// let stripe = Stripe("{{ env('STRIPE_KEY') }}");
+// alert(stripe);
+// let elements = stripe.elements();
+// let style = {
+//   base: {
+//     color: "#32325d",
+//     fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+//     fontSmoothing: "antialiased",
+//     fontSize: "16px",
+//     "::placeholder": {
+//       color: "#aab7c4",
+//     },
+//   },
+//   invalid: {
+//     color: "#fa755a",
+//     iconColor: "#fa755a",
+//   },
+// };
+// let card = elements.create("card", {
+//   style: style,
+// });
+// card.mount("#card-element");
+// let paymentMethod = null;
+// $(".card-form").on("submit", function (e) {
+//   $("button.pay").attr("disabled", true);
+
+//   if (paymentMethod) {
+//     return true;
+//   }
+//   stripe
+//     .confirmCardSetup("{{ $intent->client_secret }}", {
+//       payment_method: {
+//         card: card,
+//         billing_details: {
+//           name: $(".card_holder_name").val(),
+//         },
+//       },
+//     })
+//     .then(function (result) {
+//       if (result.error) {
+//         $("#card-errors").text(result.error.message);
+//         $("button.pay").removeAttr("disabled");
+//       } else {
+//         paymentMethod = result.setupIntent.payment_method;
+//         alert(paymentMethod);
+//         $(".payment-method").val(paymentMethod);
+//         $(".card-form").submit();
+//       }
+//     });
+//   return false;
+// });
 </script>
 
 <style src="@vueform/multiselect/themes/default.css"></style>

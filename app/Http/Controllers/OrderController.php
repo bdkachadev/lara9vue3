@@ -1,19 +1,21 @@
 <?php
 
-namespace App\Http\Controllers\Client;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\User;
-use App\Models\Product;
-use App\Models\Cart;
 use Inertia\Inertia;
+use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
 
-class HomeController extends Controller
+class OrderController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('can:show_home', ['only' => ['index', 'show']]);
+        $this->middleware('can:show_order', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_order', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_order', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_order', ['only' => ['destroy']]);
+        $this->middleware('can:cancel_order', ['only' => ['cancel']]);
     }
     /**
      * Display a listing of the resource.
@@ -21,13 +23,20 @@ class HomeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
+    // public function cartList()
     {
-        $productsCount = Product::count();
-        $usersCount = User::whereNot('id', 1)->count();
-        $products = Product::all();
-        return Inertia::render('Client/Home', [["can" => [
-            'show' => auth()->user()->can('show_home'),
-        ]], "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
+        $orders = Order::latest()->paginate(4);
+
+        return Inertia::render('Order/Index', [
+            "orders" => $orders,
+            'can' => [
+                'show' => Auth::user()->can('show_order'),
+                'add' => Auth::user()->can('add_order'),
+                'delete' => Auth::user()->can('delete_order'),
+                'edit' => Auth::user()->can('edit_order'),
+                'cancel' => Auth::user()->can('cancel_order'),
+            ]
+        ]);
     }
 
     /**
@@ -94,11 +103,5 @@ class HomeController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function getCount()
-    {
-        $count = Cart::where('user_id', auth()->user()->id)->whereNot('is_placed', 1)->sum('quantity');
-        return $count;
     }
 }

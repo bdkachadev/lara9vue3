@@ -23,14 +23,14 @@ class CartController extends Controller
     public function index()
     // public function cartList()
     {
-        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->paginate(4);
+        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->whereNot('is_placed', 1)->paginate(4);
         // dd($cartItems);
         // return view('cart', compact('cartItems'));
 
         // if ($id) {
         //     $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.id', $id)->get();
         // } else {
-        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->where('carts.user_id', auth()->user()->id)->get();
+        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->whereNot('is_placed', 1)->where('carts.user_id', auth()->user()->id)->get();
         // }
         $subTotal = 0;
         foreach ($cartsCal->toArray() as $ke => $st) {
@@ -93,20 +93,20 @@ class CartController extends Controller
     public function destroy(Cart $cart)
 
     {
-        $cart->delete();
+        $cart->whereNot('is_placed', 1)->delete();
         Session::flash('success', 'Item removed Successfully !');
         // return Redirect::back()->with("success", "Item removed Successfully");
     }
 
     public function clearAllCart()
     {
-        Cart::where('user_id', auth()->user()->id)->delete();
+        Cart::where('user_id', auth()->user()->id)->whereNot('is_placed', 1)->delete();
         Session::flash('success', 'Cart Cleared Successfully !');
     }
 
     public function removeFromCheckout(Request $request)
     {
-        Cart::where('id', $request->id)->delete();
+        Cart::where('id', $request->id)->whereNot('is_placed', 1)->delete();
         Session::flash('success', 'Item Removed Successfully !');
     }
 
@@ -124,14 +124,18 @@ class CartController extends Controller
             $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->get();
         }
         $subTotal = 0;
+        $cartIds = [];
         foreach ($carts->toArray() as $ke => $st) {
             $subTotal += $st['price'] * $st['quantity'];
+            $cartIds[] = $st["id"];
         }
         $shippingTax = 10;
         $total = $subTotal + $shippingTax;
         $user = User::find(auth()->user()->id);
+        $intent = auth()->user()->createSetupIntent();
+
         // dd($cartItems);
         // return view('cart', compact('cartItems'));
-        return Inertia::render('Client/Cart/Checkout', ["user" => $user, "carts" => $carts, "shippingTax" => $shippingTax, "subTotal" => $subTotal, "total" => $total]);
+        return Inertia::render('Client/Cart/Checkout', ["intent" => $intent, "user" => $user, "carts" => $carts, "shippingTax" => $shippingTax, "subTotal" => $subTotal, "total" => $total, 'cartIds' => $cartIds]);
     }
 }

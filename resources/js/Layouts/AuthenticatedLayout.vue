@@ -105,6 +105,19 @@ onBeforeMount(() => {
                 >
                   Products
                 </NavLink>
+                <NavLink
+                  v-if="
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin' ||
+                      $page.props.auth.role === 'manager' ||
+                      $page.props.auth.role === 'user')
+                  "
+                  :href="route('manage.orders.index')"
+                  :active="route().current('manage.orders.index')"
+                >
+                  Orders
+                </NavLink>
               </div>
             </div>
 

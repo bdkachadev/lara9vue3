@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\OrderController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,12 +50,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/carts/checkout/{id?}', [CartController::class, "checkout"])->name("carts.checkout");
         Route::post('/carts/removeFromCheckout', [CartController::class, "removeFromCheckout"])->name("carts.removeFromCheckout");
         Route::post('/checkout/getStripeSession', [StripeController::class, "getStripeSession"])->name("checkout.getStripeSession");
+        Route::post('/checkout/purchase', [StripeController::class, "purchase"])->name('checkout.purchase');
 
         Route::resource('/users', UserController::class);
         Route::resource('/roles', RoleController::class);
         Route::resource('/permissions', PermissionController::class);
         Route::resource('/products', ProductController::class);
         Route::resource('/carts', CartController::class);
+        Route::resource('/orders', OrderController::class);
     });
 
     // client side routes

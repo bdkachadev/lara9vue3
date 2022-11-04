@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
 
     <!-- Scripts -->
+    <script src="https://js.stripe.com/v3/"></script>
     @routes
     @vite('resources/js/app.js')
     @inertiaHead
