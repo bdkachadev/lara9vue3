@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Order;
+use App\Models\Cart;
+use Session;
 use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
@@ -25,8 +27,13 @@ class OrderController extends Controller
     public function index()
     // public function cartList()
     {
-        $orders = Order::latest()->paginate(4);
-
+        // dump(auth()->user()->id);
+        if (Auth::user()->hasRole("user")) {
+            $orders = Order::where("user_id", auth()->user()->id)->latest()->paginate(10);
+        } else {
+            $orders = Order::latest()->paginate(10);
+        }
+        // dd($orders);
         return Inertia::render('Order/Index', [
             "orders" => $orders,
             'can' => [
@@ -69,6 +76,20 @@ class OrderController extends Controller
     public function show($id)
     {
         //
+        // dd(Auth::user()->hasRole('user'));
+        // if (Auth::user()->hasRole('user')) {
+        $order = Order::where("user_id", auth()->user()->id)->where("id", $id)->first();
+        $cart = Cart::select("carts.*", "p.title", "p.description", "p.price", "p.image")->join("products as p", "p.id", "carts.product_id")->whereIn('carts.id', explode(",", $order->cart_ids))->get();
+        // dd($order);
+        // dd($cart);
+        // foreach($order as $o){
+        //     dd($o->title);
+        // }
+        return Inertia::render('Client/MyOrder/Index', [
+            "order" => $order,
+            "cart" => $cart
+        ]);
+        // }
     }
 
     /**
@@ -100,8 +121,24 @@ class OrderController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Order $order)
     {
         //
+        $order->delete();
+        Session::flash('success', 'Order removed Successfully !');
+    }
+
+    public function changeStatus(Request $request)
+    {
+        // \DB::enableQueryLog();
+        Order::where("id", $request->id)->update(["order_status" => $request->status]);
+        // dd(\DB::getQueryLog());
+        Session::flash('success', 'Order status Changed Successfully !');
+    }
+    public function cancleOrder(Request $request)
+    {
+        Order::where("id", $request->id)->update(["order_status" => 'canceled']);
+
+        Session::flash('success', 'Your Order Cancelled Successfully!');
     }
 }

@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\ProductImage;
+
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +30,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(10);
-        return Inertia::render('Product/Index', ['products' => $products, 'can' => [
+        $products = Product::with("images")->latest()->paginate(10);
+        $categories = Category::get();
+
+        return Inertia::render('Product/Index', ["categories" => $categories, 'products' => $products, 'can' => [
             'show' => Auth::user()->can('show_product'),
             'add' => Auth::user()->can('add_product'),
             'delete' => Auth::user()->can('delete_product'),
@@ -44,7 +50,24 @@ class ProductController extends Controller
     public function create()
     {
         //
-        return Inertia::render('Product/Create');
+        $categories = Category::get();
+        $categoriesData = Category::latest()->paginate(5);
+
+        $categoriesOption = [];
+        foreach ($categories as $k => $c) {
+            $categoriesOption[$k]["label"] = $c->name;
+            $categoriesOption[$k]["value"] = $c->id;
+        }
+        $brands = Brand::get();
+        $brandsData = Brand::latest()->paginate(5);
+
+        $brandsOption = [];
+        foreach ($brands as $k => $c) {
+            $brandsOption[$k]["label"] = $c->name;
+            $brandsOption[$k]["value"] = $c->id;
+        }
+        $unitsOption = ["Piece", "Kg", "Liter", "Grams"];
+        return Inertia::render('Product/Create', ["categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption]);
     }
 
     /**
@@ -55,16 +78,21 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->image);
         // if ($request->hasFile('image')) {
         //     $image_path = $request->file('image')->store('image', 'public');
         // }
 
-        $validator =  Validator::make($request->all(), [
+        Validator::make($request->all(), [
             'title' => ['required'],
             'description' => ['required'],
             'price' => ['required'],
             'quantity' => ['required'],
-            'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg|max:2048'
+            // 'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg,webp|max:2048',
+            "category" => ['required'],
+            "brand" => ['required'],
+            "unit" => ['required'],
+
 
         ])->validate();
 
@@ -72,25 +100,84 @@ class ProductController extends Controller
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
 
-        $image_name = "";
-        if ($request->hasFile('image')) {
-            $image_name = time() . '_' . str_replace(" ", "_", $request->image->getClientOriginalName());
-            $request->file('image')->move(public_path('uploads'), $image_name);
-        }
+
+        // dd($images_arr);
         $product = Product::where("title", $request->title)->first();
         if ($product) {
             return Redirect::back()->with('error', 'Product Already Exist !!!');
         }
+
         $product = new Product;
         $product->title = $request->title;
         $product->description = $request->description;
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->description = $request->description;
-        $product->image = url('/') . "/uploads/" . $image_name;
+        $product->category_id = $request->category;
+        $product->brand_id = $request->brand;
+        $product->unit = $request->unit;
+
+        // $product->image = url('/') . "/uploads/" . $image_name;
         $product->save();
+        // $product->images()->createMany($images_arr);
+        $imageStore = url('/') . "/uploads/products/" . $product->id . "/";
+
+        $image_name = "";
+        if (count($request->image) > 0) {
+            foreach ($request->image as $f) {
+                if ($request->hasFile('image')) {
+                    $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
+                    $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
+                    $product_image = new  ProductImage();
+                    // $product_image->image = $image_name;
+                    $product_image->image = $imageStore . $image_name;
+                    $product_image->product_id = $product->id;
+                    $product_image->save();
+                }
+            }
+            Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
+        }
         return Redirect::route('manage.products.index')->with('success', 'Product Created Successfully!!!');
     }
+
+    // public function store(Request $request)
+    // {
+    //     // if ($request->hasFile('image')) {
+    //     //     $image_path = $request->file('image')->store('image', 'public');
+    //     // }
+
+    //     $validator =  Validator::make($request->all(), [
+    //         'title' => ['required'],
+    //         'description' => ['required'],
+    //         'price' => ['required'],
+    //         'quantity' => ['required'],
+    //         'image' => 'required|image|mimes:jpeg,jpg,png,gif,svg|max:2048'
+
+    //     ])->validate();
+
+    //     // if ($validator->fails()) {
+    //     //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
+    //     // }
+
+    //     $image_name = "";
+    //     if ($request->hasFile('image')) {
+    //         $image_name = time() . '_' . str_replace(" ", "_", $request->image->getClientOriginalName());
+    //         $request->file('image')->move(public_path('uploads'), $image_name);
+    //     }
+    //     $product = Product::where("title", $request->title)->first();
+    //     if ($product) {
+    //         return Redirect::back()->with('error', 'Product Already Exist !!!');
+    //     }
+    //     $product = new Product;
+    //     $product->title = $request->title;
+    //     $product->description = $request->description;
+    //     $product->price = $request->price;
+    //     $product->quantity = $request->quantity;
+    //     $product->description = $request->description;
+    //     $product->image = url('/') . "/uploads/" . $image_name;
+    //     $product->save();
+    //     return Redirect::route('manage.products.index')->with('success', 'Product Created Successfully!!!');
+    // }
 
     /**
      * Display the specified resource.
@@ -111,7 +198,24 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return Inertia::render('Product/Edit', ['product' => $product]);
+        $categories = Category::get();
+        $categoriesData = Category::latest()->paginate(5);
+
+        $categoriesOption = [];
+        foreach ($categories as $k => $c) {
+            $categoriesOption[$k]["label"] = $c->name;
+            $categoriesOption[$k]["value"] = $c->id;
+        }
+        $brands = Brand::get();
+        $brandsData = Brand::latest()->paginate(5);
+
+        $brandsOption = [];
+        foreach ($brands as $k => $c) {
+            $brandsOption[$k]["label"] = $c->name;
+            $brandsOption[$k]["value"] = $c->id;
+        }
+        $unitsOption = ["Piece", "Kg", "Liter", "Grams"];
+        return Inertia::render('Product/Edit', ['product' => $product, "categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption]);
     }
 
     /**
@@ -126,7 +230,7 @@ class ProductController extends Controller
         // if ($validator->fails()) {
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
-
+        // dd($product);
         Validator::make($request->all(), [
             'title' => ['required'],
             'description' => ['required'],
@@ -140,7 +244,28 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->description = $request->description;
+        $product->category_id = $request->category;
+        $product->brand_id = $request->brand;
+        $product->unit = $request->unit;
         $product->save();
+
+        // $imageStore = url('/') . "/uploads/products/" . $product->id . "/";
+
+        // $image_name = "";
+        // if (count($request->image) > 0) {
+        //     foreach ($request->image as $f) {
+        //         if ($request->hasFile('image')) {
+        //             $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
+        //             $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
+        //             $product_image = new  ProductImage();
+        //             // $product_image->image = $image_name;
+        //             $product_image->image = $imageStore . $image_name;
+        //             $product_image->product_id = $product->id;
+        //             $product_image->save();
+        //         }
+        //     }
+        //     Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
+        // }
 
         return Redirect::route('manage.products.index')->with('success', 'Product Updated Successfully!!!');
     }
@@ -160,7 +285,7 @@ class ProductController extends Controller
 
     public function detail($id)
     {
-        $product = Product::find($id);
+        $product = Product::with("images")->find($id);
         return Inertia::render('Client/Product/Detail', ['product' => $product]);
     }
 }

@@ -65,6 +65,9 @@
                             v-model="checkoutForm.name"
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                           />
+                          <span className="text-red-600" v-if="checkoutForm.errors.name">
+                            {{ checkoutForm.errors.name }}
+                          </span>
                         </div>
                       </div>
                       <div class="mt-4">
@@ -96,6 +99,12 @@
                             rows="4"
                             placeholder="Address"
                           ></textarea>
+                          <span
+                            className="text-red-600"
+                            v-if="checkoutForm.errors.address"
+                          >
+                            {{ checkoutForm.errors.address }}
+                          </span>
                         </div>
                       </div>
 
@@ -112,6 +121,9 @@
                             placeholder="City"
                             class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                           />
+                          <span className="text-red-600" v-if="checkoutForm.errors.city">
+                            {{ checkoutForm.errors.city }}
+                          </span>
                         </div>
                       </div>
 
@@ -223,6 +235,12 @@
                               placeholder="Name"
                               class="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                             />
+                            <span
+                              className="text-red-600"
+                              v-if="checkoutForm.errors.holder_name"
+                            >
+                              {{ checkoutForm.errors.holder_name }}
+                            </span>
                           </div>
                         </div>
                         <!-- <div class="mt-4">
@@ -454,78 +472,79 @@ onMounted(() => {
   cardElelement = card;
 });
 const submit = () => {
-  // alert("l");
-  // alert("{{env('STRIPE_KEY')}}");
-  // You will be redirected to Stripe's secure checkout page
-  // checkoutRef.redirectToCheckout();
-  // $("button.pay").attr("disabled", true);
-  // alert(props.intent.client_secret);
-  // alert(checkoutForm.holder_name);
-  // alert(paymentMethod);
-  if (paymentMethod) {
-    // alert("jhkj");
-    return true;
+  checkoutForm.errors.name = "";
+
+  if (!checkoutForm.name) {
+    checkoutForm.errors.name = "The name field is required";
   }
-  // stripe = Stripe(
-  //   "pk_test_51M01BbCroadtmyvPAjR4H8TXqX2ct6ShQXurogA5FEkxvCJPnirt4SeSHPFXPSNyqFq6ZHAvwqIugpCxbPgnLGuR005GEfOPxz"
-  // );
+  checkoutForm.errors.email = "";
 
-  // var elements = stripe.elements();
-  // var style = {
-  //   base: {
-  //     color: "#32325d",
-  //     fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-  //     fontSmoothing: "antialiased",
-  //     fontSize: "16px",
-  //     "::placeholder": {
-  //       color: "#aab7c4",
-  //     },
-  //   },
-  //   invalid: {
-  //     color: "#fa755a",
-  //     iconColor: "#fa755a",
-  //   },
-  // };
-  // var card = elements.create("card", {
-  //   style: style,
-  // });
-  console.log(cardElelement);
-  stripe
-    .confirmCardSetup(props.intent.client_secret, {
-      payment_method: {
-        card: cardElelement,
-        billing_details: {
-          // name: $(".card_holder_name").val(),
-          name: checkoutForm.holder_name,
+  if (!checkoutForm.email) {
+    checkoutForm.errors.email = "The email field is required";
+  }
+  checkoutForm.errors.address = "";
+  if (!checkoutForm.address) {
+    checkoutForm.errors.address = "The address field is required";
+  }
+  checkoutForm.errors.city = "";
+
+  if (!checkoutForm.city) {
+    checkoutForm.errors.city = "The city field is required";
+  }
+  checkoutForm.errors.holder_name = "";
+
+  if (!checkoutForm.holder_name) {
+    checkoutForm.errors.holder_name = "The name field is required";
+  }
+
+  if (
+    checkoutForm.name &&
+    checkoutForm.email &&
+    checkoutForm.address &&
+    checkoutForm.city &&
+    checkoutForm.holder_name
+  ) {
+    if (paymentMethod) {
+      return true;
+    }
+    // console.log(cardElelement);
+    stripe
+      .confirmCardSetup(props.intent.client_secret, {
+        payment_method: {
+          card: cardElelement,
+          billing_details: {
+            // name: $(".card_holder_name").val(),
+            name: checkoutForm.holder_name,
+          },
         },
-      },
-    })
-    .then(function (result) {
-      console.log(result.error);
-      // alert(result.setupIntent.payment_method);
-      if (result.error) {
-        $("#card-errors").text(result.error.message);
-        $("button.pay").removeAttr("disabled");
-      } else {
-        paymentMethod = result.setupIntent.payment_method;
-        // alert(paymentMethod);
-        // $(".payment-method").val(paymentMethod);
-        checkoutForm.payment_method = paymentMethod;
+      })
+      .then(function (result) {
+        console.log(result.error);
+        // alert(result.setupIntent.payment_method);
+        if (result.error) {
+          $("#card-errors").text(result.error.message);
+          $("button.pay").removeAttr("disabled");
+        } else {
+          paymentMethod = result.setupIntent.payment_method;
+          // alert(paymentMethod);
+          // $(".payment-method").val(paymentMethod);
+          checkoutForm.payment_method = paymentMethod;
 
-        // $(".card-form").submit();
-        checkoutForm.post(route("manage.checkout.purchase"), {
-          onFinish: () => console.log(""),
-        });
-        // .then(async (response) => {
-        //   // Swal.fire({
-        //   //   title: "Wow!",
-        //   //   text: "All Item are removed from cart Successfully!!",
-        //   //   icon: "success",
-        //   // });
-        //   // window.location.href = route("manage.carts.checkout");
-        // });
-      }
-    });
+          // $(".card-form").submit();
+          checkoutForm.post(route("manage.checkout.purchase"), {
+            onFinish: () => console.log(""),
+          });
+          // .then(async (response) => {
+          //   // Swal.fire({
+          //   //   title: "Wow!",
+          //   //   text: "All Item are removed from cart Successfully!!",
+          //   //   icon: "success",
+          //   // });
+          //   // window.location.href = route("manage.carts.checkout");
+          // });
+        }
+      });
+  }
 };
 const removeFromCheckout = (id) => {
   Swal.fire({

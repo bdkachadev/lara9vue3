@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Order;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -23,10 +24,12 @@ class DashboardController extends Controller
     {
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
+        $ordersCount = Order::count();
+
         return Inertia::render('Dashboard', [["can" => [
             'show' => auth()->user()->can('show_dashboard'),
 
-        ]], "productsCount" => $productsCount, "usersCount" => $usersCount]);
+        ]], "ordersCount" => $ordersCount, "productsCount" => $productsCount, "usersCount" => $usersCount]);
     }
 
     /**

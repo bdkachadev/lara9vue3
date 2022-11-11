@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Cart;
 use Inertia\Inertia;
+use App\Models\Category;
+use App\Models\Brand;
+
 
 class HomeController extends Controller
 {
@@ -25,9 +28,31 @@ class HomeController extends Controller
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
         $products = Product::all();
+
+
+        $categories = Category::get();
+        $categoriesAll = [];
+        foreach ($categories as $k => $c) {
+            $categoriesAll[$k]["label"] = $c->name;
+            $categoriesAll[$k]["value"] = $c->id;
+            $categoriesAll[$k]["id"] = $c->id;
+            $categoriesAll[$k]["checked"] = false;
+        }
+        $brands = Brand::get();
+
+        // $categoriesData = Category::latest()->paginate(5);
+
+        $brandsAll = [];
+        foreach ($brands as $k => $c) {
+            $brandsAll[$k]["label"] = $c->name;
+            $brandsAll[$k]["value"] = $c->id;
+            $brandsAll[$k]["id"] = $c->id;
+            $brandsAll[$k]["value"] = false;
+        }
+
         return Inertia::render('Client/Home', [["can" => [
             'show' => auth()->user()->can('show_home'),
-        ]], "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
+        ]], "brandsAll" => $brandsAll, "categoriesAll" => $categoriesAll, "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
     }
 
     /**
@@ -98,7 +123,7 @@ class HomeController extends Controller
 
     public function getCount()
     {
-        $count = Cart::where('user_id', auth()->user()->id)->whereNot('is_placed', 1)->sum('quantity');
+        $count = Cart::where('user_id', auth()->user()->id)->where('is_placed', 0)->sum('quantity');
         return $count;
     }
 }

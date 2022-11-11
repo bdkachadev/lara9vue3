@@ -5,10 +5,10 @@
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Detail</h2>
     </template>
-    <div className="py-8">
+    <div className="">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <div class="text-center">
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -31,7 +31,7 @@
               ></FlashMessage>
             </div>
           </div>
-          <div className="p-6 bg-white border-b border-gray-200">
+          <div className=" bg-white border-b border-gray-200">
             <div className="flow-root">
               <!-- Contents -->
               <div className="container mx-auto font-kumbh text-base">
@@ -96,18 +96,19 @@
                       className="thumbnails hidden justify-between gap-4 m-auto sm:flex sm:flex-col sm:justify-start sm:items-center sm:h-fit md:gap-5 lg:flex-row"
                     >
                       <div
+                        v-for="image in product.images"
                         id="1"
                         className="w-1/5 cursor-pointer rounded-xl sm:w-28 md:w-32 lg:w-[72px] xl:w-[78px] ring-active"
                       >
                         <img
-                          :src="product.image"
+                          :src="image.image"
                           alt="thumbnail"
                           className="rounded-xl hover:opacity-50 transition active"
                           id="thumb-1"
                         />
                       </div>
 
-                      <div
+                      <!-- <div
                         id="2"
                         className="w-1/5 cursor-pointer rounded-xl sm:w-28 md:w-32 lg:w-[72px] xl:w-[78px]"
                       >
@@ -140,8 +141,8 @@
                           alt="thumbnail"
                           className="rounded-xl hover:opacity-50 transition"
                           id="thumb-4"
-                        />
-                      </div>
+                        /> 
+                      </div> -->
                     </div>
                   </section>
 

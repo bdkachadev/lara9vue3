@@ -21,6 +21,8 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "@headlessui/vue": "^1.7.4",
+        "@heroicons/vue": "^2.0.13",
         "@k90mirzaei/vue-toast": "^1.0.3",
         "@kyvg/vue3-notification": "^2.4.1",
         "@stripe/stripe-js": "^1.42.1",

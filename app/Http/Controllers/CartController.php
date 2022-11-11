@@ -23,14 +23,14 @@ class CartController extends Controller
     public function index()
     // public function cartList()
     {
-        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->whereNot('is_placed', 1)->paginate(4);
+        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('is_placed', 0)->paginate(4);
         // dd($cartItems);
         // return view('cart', compact('cartItems'));
 
         // if ($id) {
         //     $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.id', $id)->get();
         // } else {
-        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->whereNot('is_placed', 1)->where('carts.user_id', auth()->user()->id)->get();
+        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->where('is_placed', 0)->where('carts.user_id', auth()->user()->id)->get();
         // }
         $subTotal = 0;
         foreach ($cartsCal->toArray() as $ke => $st) {
@@ -58,7 +58,7 @@ class CartController extends Controller
     // public function addToCart(Request $request)
     public function store(Request $request)
     {
-        $cart = Cart::where('product_id', $request->id)->where('user_id', auth()->user()->id)->first();
+        $cart = Cart::where("is_placed", 0)->where('product_id', $request->id)->where('user_id', auth()->user()->id)->first();
         if ($cart) {
             $cart->quantity += $request->count;
         } else {
@@ -90,23 +90,22 @@ class CartController extends Controller
     }
 
     // public function removeCart(Request $request)
-    public function destroy(Cart $cart)
-
+    public function destroy($id)
     {
-        $cart->whereNot('is_placed', 1)->delete();
+        Cart::where('id', $id)->where('is_placed', 0)->delete();
         Session::flash('success', 'Item removed Successfully !');
         // return Redirect::back()->with("success", "Item removed Successfully");
     }
 
     public function clearAllCart()
     {
-        Cart::where('user_id', auth()->user()->id)->whereNot('is_placed', 1)->delete();
+        Cart::where('user_id', auth()->user()->id)->where('is_placed', 0)->delete();
         Session::flash('success', 'Cart Cleared Successfully !');
     }
 
     public function removeFromCheckout(Request $request)
     {
-        Cart::where('id', $request->id)->whereNot('is_placed', 1)->delete();
+        Cart::where('id', $request->id)->where('is_placed', 0)->delete();
         Session::flash('success', 'Item Removed Successfully !');
     }
 
@@ -119,9 +118,9 @@ class CartController extends Controller
     public function checkout($id = null)
     {
         if ($id) {
-            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.id', $id)->get();
+            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->where('carts.id', $id)->get();
         } else {
-            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->get();
+            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->get();
         }
         $subTotal = 0;
         $cartIds = [];

@@ -110,26 +110,26 @@ onBeforeMount(() => {
                     $page.props.auth.role &&
                     ($page.props.auth.role === 'super_admin' ||
                       $page.props.auth.role === 'admin' ||
-                      $page.props.auth.role === 'manager' ||
-                      $page.props.auth.role === 'user')
+                      $page.props.auth.role === 'manager')
                   "
                   :href="route('manage.orders.index')"
                   :active="route().current('manage.orders.index')"
                 >
                   Orders
                 </NavLink>
+                <NavLink
+                  v-else
+                  :href="route('manage.orders.index')"
+                  :active="route().current('manage.orders.index')"
+                >
+                  My Orders
+                </NavLink>
               </div>
             </div>
 
             <div class="hidden sm:flex sm:items-center sm:ml-6">
               <NavLink
-                v-if="
-                  $page.props.auth.role &&
-                  ($page.props.auth.role === 'super_admin' ||
-                    $page.props.auth.role === 'admin' ||
-                    $page.props.auth.role === 'manager' ||
-                    $page.props.auth.role === 'user')
-                "
+                v-if="$page.props.auth.role && $page.props.auth.role === 'user'"
                 :href="route('manage.carts.index')"
                 :active="route().current('manage.carts.index')"
               >

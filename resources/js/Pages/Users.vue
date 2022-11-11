@@ -31,7 +31,7 @@
               ></FlashMessage>
             </div>
           </div>
-          <div v-if="can.edit">
+          <div v-if="can.edit" v-show="editShow">
             <div className="p-6 bg-white border-b border-gray-200">
               <div className="flow-root">
                 <p className="float-left">Edit User</p>
@@ -187,7 +187,7 @@ const userForm = useForm({
   email: "",
   role: null,
 });
-
+var editShow = false;
 const submitUser = (event) => {
   userForm.post(route("manage.users.store"), {
     onFinish: () => event.target.reset(),
@@ -195,6 +195,7 @@ const submitUser = (event) => {
 };
 
 const editUser = (id) => {
+  editShow = true;
   axios.get(route("manage.users.edit", id)).then((res) => {
     var roles = res.data.roles.map((item) => item.name);
     console.warn(roles);

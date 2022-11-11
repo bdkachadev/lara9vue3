@@ -69,10 +69,7 @@
                   <td className="py-4 px-6">
                     <img :src="product.image" width="200" height="200" />
                   </td>
-                  <th
-                    scope="row"
-                    className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-                  >
+                  <th className="py-4 px-6">
                     {{ product.title }}
                   </th>
 

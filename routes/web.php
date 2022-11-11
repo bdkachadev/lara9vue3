@@ -13,8 +13,9 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
-
+use App\Http\Controllers\BrandController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/carts/removeFromCheckout', [CartController::class, "removeFromCheckout"])->name("carts.removeFromCheckout");
         Route::post('/checkout/getStripeSession', [StripeController::class, "getStripeSession"])->name("checkout.getStripeSession");
         Route::post('/checkout/purchase', [StripeController::class, "purchase"])->name('checkout.purchase');
+        Route::post('/orders/changeStatus', [OrderController::class, "changeStatus"])->name('orders.changeStatus');
+        Route::post('/orders/cancleOrder', [OrderController::class, "cancleOrder"])->name('orders.cancleOrder');
 
         Route::resource('/users', UserController::class);
         Route::resource('/roles', RoleController::class);
@@ -58,6 +61,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/products', ProductController::class);
         Route::resource('/carts', CartController::class);
         Route::resource('/orders', OrderController::class);
+        Route::resource('/categories', CategoryController::class);
+        Route::resource('/brands', BrandController::class);
     });
 
     // client side routes

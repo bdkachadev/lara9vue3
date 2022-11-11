@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use Validator;
 
 class StripeController extends Controller
 {
@@ -33,24 +34,35 @@ class StripeController extends Controller
     }
     public function purchase(Request $request)
     {
+
+
+        Validator::make($request->all(), [
+            'name' => ['required'],
+            'email' => ['required'],
+            'city' => ['required'],
+            'address' => ['required'],
+            'holder_name' => ['required'],
+
+        ])->validate();
         // dump($request);
         // dd($request->user());
         $user          = $request->user();
         $paymentMethod = $request->input('payment_method');
-
+        $shipping_charge = 10;
+        $t = $request->price + $shipping_charge;
         try {
             $user->createOrGetStripeCustomer();
             $user->updateDefaultPaymentMethod($paymentMethod);
-            $user->charge($request->price * 100, $paymentMethod);
+            $user->charge($t * 100, $paymentMethod);
 
             $order = new Order;
-            $order->cart_ids = json_encode($request->cart_ids);
+            $order->cart_ids = implode(",", $request->cart_ids);
             // $order->payment_transaction_id=;
-            $order->order_total = $request->price;
-            $order->order_status    = "paid";
+            $order->order_status    = "confirmed";
             $order->name = $request->name;
             $order->user_id = auth()->user()->id;
-
+            $order->shipping_charge = $shipping_charge;
+            $order->order_subtotal = $request->price;
             $order->email = $request->email;
             $order->address = $request->address;
             $order->city = $request->city;
@@ -62,6 +74,6 @@ class StripeController extends Controller
             return back()->with('error', $exception->getMessage());
         }
 
-        return back()->with('success', 'Thank You For Purchased! Your Order Placed successfully!');
+        return redirect()->route('manage.orders.show', $order->id)->with('success', 'Thank You For Purchased! Your Order Confirmed Successfully!');
     }
 }

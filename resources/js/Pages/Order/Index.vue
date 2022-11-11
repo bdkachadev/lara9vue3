@@ -35,13 +35,13 @@
             <div className="flow-root">
               <p className="float-left">Orders List</p>
               <p className="float-right">
-                <Link
+                <!-- <Link
                   v-if="can.add"
                   :href="route('manage.products.create')"
                   className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
                   Add New
-                </Link>
+                </Link> -->
               </p>
             </div>
           </div>
@@ -52,8 +52,20 @@
               >
                 <tr>
                   <th scope="col" className="py-3 px-6">Order Id</th>
-                  <th scope="col" className="py-3 px-6">Name</th>
-                  <th scope="col" className="py-3 px-6">Email</th>
+                  <th
+                    scope="col"
+                    v-if="$page.props.auth.role != 'user'"
+                    className="py-3 px-6"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    v-if="$page.props.auth.role != 'user'"
+                    className="py-3 px-6"
+                  >
+                    Email
+                  </th>
                   <th scope="col" className="py-3 px-6">Order Total</th>
                   <th scope="col" className="py-3 px-6">Order Status</th>
                   <th
@@ -71,55 +83,115 @@
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <td className="py-4 px-6">{{ order.order_id }}</td>
-                  <td className="py-4 px-6">{{ order.name }}</td>
-                  <td className="py-4 px-6">{{ order.email }}</td>
-                  <td className="py-4 px-6">{{ order.order_total }}</td>
-                  <td className="py-4 px-6 ">
-                    <span
-                      v-if="order.order_status == 'paid'"
-                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-500 text-white rounded"
-                      >{{ order.order_status }}</span
+                  <td v-if="$page.props.auth.role != 'user'" className="py-4 px-6">
+                    {{ order.name }}
+                  </td>
+                  <td v-if="$page.props.auth.role != 'user'" className="py-4 px-6">
+                    {{ order.email }}
+                  </td>
+                  <td className="py-4 px-6">
+                    {{ order.order_subtotal + order.shipping_charge }}
+                  </td>
+                  <td className="py-4 px-6" v-if="$page.props.auth.role != 'user'">
+                    <select
+                      @change="updateStatus(order, $event)"
+                      className="rounded py-2"
+                      v-model="order.order_status"
                     >
+                      <option value="confirmed">confirmed</option>
+                      <option value="shipped">shipped</option>
+                      <option value="delivered">delivered</option>
+                      <option value="canceled">canceled</option>
+                      <option value="pending">pending</option>
+                    </select>
+                  </td>
+                  <td className="py-4 px-6" v-else>
                     <span
-                      v-if="order.order_status == 'unpaid'"
-                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-blue-500 text-white rounded"
+                      v-if="order.order_status == 'confirmed'"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-500 text-white rounded"
                       >{{ order.order_status }}</span
                     >
                     <span
                       v-if="order.order_status == 'canceled'"
-                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-red-500 text-white rounded"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-red-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                    <span
+                      v-if="order.order_status == 'pending'"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-yellow-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                    <span
+                      v-if="order.order_status == 'delivered'"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-blue-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                    <span
+                      v-if="order.order_status == 'shipped'"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-gray-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                  </td>
+
+                  <!-- <td className="py-4 px-6 ">
+                    <span
+                      v-if="order.order_status == 'confirmed'"
+                      class="inline-block py-1.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-500 text-white rounded"
                       >{{ order.order_status }}</span
                     >
                     <span
                       v-if="order.order_status == 'pending'"
                       class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-yellow-500 text-white rounded"
                       >{{ order.order_status }}</span
+                    ><span
+                      v-if="order.order_status == 'canceled'"
+                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-red-500 text-white rounded"
+                      >{{ order.order_status }}</span
                     >
-                  </td>
+                    <span
+                      v-if="order.order_status == 'shipped'"
+                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-red-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                    <span
+                      v-if="order.order_status == 'delivered'"
+                      class="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-blue-500 text-white rounded"
+                      >{{ order.order_status }}</span
+                    >
+                  </td> -->
 
                   <!-- <td className="py-4 px-6">
                     {{ product.roles.length > 0 ? product.roles.map((item) => item.name) : "" }}
                   </td> -->
 
                   <td className="py-4 px-6">
-                    <a
+                    <!-- <a
                       v-if="can.edit"
                       :href="route('manage.orders.edit', order.id)"
                       className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
                     >
                       Edit
-                    </a>
+                    </a> -->
                     <a
                       v-if="can.delete"
-                      @click="destroyProduct(order.id)"
+                      @click="destroyOrder(order.id)"
                       className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
                     <a
-                      v-if="can.show"
-                      @click="destroyProduct(order.id)"
-                      className="ml-2 font-medium text-orange-600 dark:text-orange-500 hover:underline"
+                      v-if="can.show && $page.props.auth.role == 'user'"
+                      :href="route('manage.orders.show', order.id)"
+                      className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >View</a
+                    >
+                    <a
+                      v-if="
+                        order.order_status != 'canceled' &&
+                        $page.props.auth.role == 'user'
+                      "
+                      @click="cancleOrder(order.id)"
+                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
+                      >Cancle</a
                     >
                   </td>
                 </tr>
@@ -163,8 +235,31 @@ const submitProduct = (event) => {
     onFinish: () => event.target.reset(),
   });
 };
-
-const destroyProduct = (id) => {
+const updateStatus = (order, e) => {
+  Swal.fire({
+    title: "Warning!",
+    text: "Are you sure you want to change order status?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, change it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      axios
+        .post(route("manage.orders.changeStatus"), {
+          id: order.id,
+          status: e.target.value,
+        })
+        .then((result) => {
+          console.log(result);
+          window.location.href = route("manage.orders.index");
+        });
+    }
+  });
+};
+const destroyOrder = (id) => {
   Swal.fire({
     title: "Warning!",
     text: "Are you sure you want to delete this?",
@@ -176,7 +271,27 @@ const destroyProduct = (id) => {
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
-      productForm.delete(route("manage.products.destroy", id));
+      axios.delete(route("manage.orders.destroy", id));
+      window.location.href = route("manage.orders.index");
+    }
+  });
+};
+const cancleOrder = (id) => {
+  Swal.fire({
+    title: "Warning!",
+    text: "Are you sure you want to cancle this Order?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, cancle it!",
+    cancelButtonText: "Cancel",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      axios.post(route("manage.orders.cancleOrder"), { id: id }).then((result) => {
+        console.log(result);
+        window.location.href = route("manage.orders.index");
+      });
     }
   });
 };

@@ -253,7 +253,8 @@ const destroyCart = (id) => {
   }).then((result) => {
     if (result.isConfirmed) {
       productForm.delete(route("manage.carts.destroy", id));
-      window.location.href = route("manage.carts.index");
+      // var page = (window.location.href = route("manage.carts.index"));
+      // window.open(page);
     }
   });
 };
@@ -269,13 +270,14 @@ const clearAllCart = () => {
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.get(route("manage.carts.clearAllCart")).then((response) => {
+      productForm.get(route("manage.carts.clearAllCart")).then((response) => {
         // Swal.fire({
         //   title: "Wow!",
         //   text: "All Item are removed from cart Successfully!!",
         //   icon: "success",
         // });
-        window.location.href = route("manage.carts.index");
+        // window.location.href = route("manage.carts.index");
+        // var page = window.open(page);
       });
     }
   });

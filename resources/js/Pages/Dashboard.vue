@@ -24,6 +24,10 @@
             <dt class="mb-2 text-3xl font-extrabold">{{ productsCount }}</dt>
             <dd class="font-light text-gray-500 dark:text-gray-400">Products</dd>
           </div>
+          <div class="flex flex-col justify-center items-center">
+            <dt class="mb-2 text-3xl font-extrabold">{{ ordersCount }}</dt>
+            <dd class="font-light text-gray-500 dark:text-gray-400">Orders</dd>
+          </div>
         </dl>
       </div>
     </div>
@@ -40,6 +44,7 @@ import Multiselect from "@vueform/multiselect";
 import { Inertia } from "@inertiajs/inertia";
 
 defineProps({
+  ordersCount: String,
   productsCount: String,
   usersCount: String,
 });
