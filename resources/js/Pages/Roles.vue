@@ -207,14 +207,14 @@
                 >
                   <th
                     scope="row"
-                    className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    className="py-4 px-6"
                   >
                     {{ role.name }}
                   </th>
 
                   <th
                     scope="row"
-                    className="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    className="py-4 px-6"
                   >
                     {{
                       role.permissions.length > 0

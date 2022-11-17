@@ -9,10 +9,16 @@ use Inertia\Inertia;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\ProductImage;
-
+use App\Models\Attributes\Size;
+use App\Models\Attributes\Color;
+use App\Models\Attribute;
+use App\Models\AttributeValue;
+use App\Models\Variant;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 use Illuminate\Support\Facades\Auth;
+use RahulHaque\Filepond\Facades\Filepond;
+use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
@@ -51,7 +57,7 @@ class ProductController extends Controller
     {
         //
         $categories = Category::get();
-        $categoriesData = Category::latest()->paginate(5);
+        $categoriesData = $categories;
 
         $categoriesOption = [];
         foreach ($categories as $k => $c) {
@@ -59,7 +65,7 @@ class ProductController extends Controller
             $categoriesOption[$k]["value"] = $c->id;
         }
         $brands = Brand::get();
-        $brandsData = Brand::latest()->paginate(5);
+        $brandsData = $brands;
 
         $brandsOption = [];
         foreach ($brands as $k => $c) {
@@ -67,7 +73,58 @@ class ProductController extends Controller
             $brandsOption[$k]["value"] = $c->id;
         }
         $unitsOption = ["Piece", "Kg", "Liter", "Grams"];
-        return Inertia::render('Product/Create', ["categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption]);
+
+        // $sizes = Size::get();
+        // $sizesOption = [];
+        // foreach ($sizes as $k => $c) {
+        //     $sizesOption[$k]["label"] = $c->name;
+        //     $sizesOption[$k]["value"] = $c->id;
+        // }
+        // $colors = Color::get();
+        // $colorsOption = [];
+        // foreach ($colors as $k => $c) {
+        //     $colorsOption[$k]["label"] = $c->name;
+        //     $colorsOption[$k]["value"] = $c->id;
+        // }
+
+        $sizesOption = [];
+        $colorsOption = [];
+        $attributesOption = [];
+        $attributes = Attribute::with("values")->get();
+        $attributesData = $attributes;
+
+        foreach ($attributes as $k => $attribute) {
+
+            $attributesOption[$k]["label"] = $attribute->name;
+            $attributesOption[$k]["value"] = $attribute->id;
+            if ($attribute->slug == "size") {
+                foreach ($attribute->values as $k => $a) {
+                    $sizesOption[$k]["label"] = $a->value;
+                    $sizesOption[$k]["value"] = $a->id;
+                }
+            } elseif ($attribute->slug == "color") {
+                foreach ($attribute->values as $k => $a) {
+                    $colorsOption[$k]["label"] = $a->value;
+                    $colorsOption[$k]["value"] = $a->id;
+                }
+            }
+        }
+        $attributesValueData = AttributeValue::get();
+        // dd($attributesOption);
+        // $attributesOption = [["label" => "Size", "value" => "size"], ["label" => "Color", "value" => "color"]];
+        return Inertia::render('Product/Create', [
+            "categoriesData" => $categoriesData,
+            "attributesOption" => $attributesOption,
+            "brandsData" => $brandsData,
+            "categoriesOption" => $categoriesOption,
+            "brandsOption" => $brandsOption,
+            "unitsOption" => $unitsOption,
+            "colorsOption" => $colorsOption,
+            "sizesOption" => $sizesOption,
+            "attributesData" => $attributesData,
+            "attributesValueData" => $attributesValueData,
+        ]);
+        // return Inertia::render('Product/Create', ["categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption, "colorsOption" => $colorsOption, "sizesOption" => $sizesOption]);
     }
 
     /**
@@ -78,11 +135,45 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
+
+        // $request->validate([
+        //     'name' => 'required|max:100',
+        //     'email' => 'required|max:100',
+        //     'avatar' => [
+        //         'required',
+        //         Rule::filepond([
+        //             'max:1024',
+        //             'image:jpeg,png',
+        //         ]),
+        //     ],
+        //     'gallery' => 'required',
+        //     'gallery.*' => [
+        //         'required',
+        //         Rule::filepond([
+        //             'max:1024',
+        //             'image:jpeg,png',
+        //         ]),
+        //     ],
+        // ]);
+
+        // Process the files using Filepond package
+        // and move them to your preferred storage
+        // i.e. "./storage/app/public/avatars"
+        // dd($fileInfo) or dd($galleryInfo)
+        // $fileInfo = Filepond::field($request->avatar)->moveTo('avatars/avatar-' . auth()->id());
+
+
+
+
+
+
         // dd($request->image);
         // if ($request->hasFile('image')) {
         //     $image_path = $request->file('image')->store('image', 'public');
         // }
 
+        // dd($request);
         Validator::make($request->all(), [
             'title' => ['required'],
             'description' => ['required'],
@@ -92,6 +183,14 @@ class ProductController extends Controller
             "category" => ['required'],
             "brand" => ['required'],
             "unit" => ['required'],
+            'productImage' => ['required'],
+            'productImage.*' => [
+                'required',
+                Rule::filepond([
+                    'max:1024',
+                    'image:jpeg,png',
+                ]),
+            ],
 
 
         ])->validate();
@@ -119,24 +218,57 @@ class ProductController extends Controller
 
         // $product->image = url('/') . "/uploads/" . $image_name;
         $product->save();
-        // $product->images()->createMany($images_arr);
-        $imageStore = url('/') . "/uploads/products/" . $product->id . "/";
 
-        $image_name = "";
-        if (count($request->image) > 0) {
-            foreach ($request->image as $f) {
-                if ($request->hasFile('image')) {
-                    $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
-                    $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
-                    $product_image = new  ProductImage();
-                    // $product_image->image = $image_name;
-                    $product_image->image = $imageStore . $image_name;
-                    $product_image->product_id = $product->id;
-                    $product_image->save();
-                }
-            }
-            Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
-        }
+        $productImageInfo = Filepond::field($request->productImage)->moveTo("uploads/products/" . $product->id);
+
+        dd($productImageInfo["location"]);
+
+        // $product->images()->createMany($images_arr);
+        // $imageStore = url('/') . "/uploads/products/" . $product->id . "/";
+
+        // $image_name = "";
+        // if (!is_null($request->image) && count($request->image) > 0) {
+        //     foreach ($request->image as $f) {
+        //         if ($request->hasFile('image')) {
+        //             $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
+        //             $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
+        //             $product_image = new  ProductImage();
+        //             // $product_image->image = $image_name;
+        //             $product_image->image = $imageStore . $image_name;
+        //             $product_image->product_id = $product->id;
+        //             $product_image->save();
+        //         }
+        //     }
+        //     Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
+        // }
+
+
+
+        // if (count($request->dynamic) > 0) {
+        //     foreach ($request->dynamic as $dynamic) {
+        //         dd($dynamic);
+        //         if ($dynamic->hasFile('image')) {
+        //             $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
+        //             $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
+        //             $product_image = new  ProductImage();
+        //             // $product_image->image = $image_name;
+        //             $product_image->image = $imageStore . $image_name;
+        //             $product_image->product_id = $product->id;
+        //             $product_image->save();
+        //         }
+        //         Variant::create([
+        //             "sku" => $dynamic["sku"],
+        //             "product_id" => $product->id,
+        //             "size_id" => $dynamic["size"],
+        //             "color_id" => $dynamic["color"],
+        //             "price" => $dynamic["price"],
+        //             "quantity" => $dynamic["quantity"],
+        //             "variant_image" => $dynamic["image"],
+
+        //         ]);
+        //     }
+        // }
+
         return Redirect::route('manage.products.index')->with('success', 'Product Created Successfully!!!');
     }
 

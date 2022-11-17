@@ -67,9 +67,10 @@
                       <img
                         :src="product.image"
                         alt="sneaker"
-                        className="block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
+                        className="object-cover h-96 w-96 block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
                         id="hero"
                       />
+
                       <button
                         className="bg-white w-10 h-10 flex items-center justify-center pl-1 rounded-full absolute right-6 z-10 sm:hidden"
                         id="next-mobile"
@@ -97,11 +98,11 @@
                     >
                       <div
                         v-for="image in product.images"
-                        id="1"
                         className="w-1/5 cursor-pointer rounded-xl sm:w-28 md:w-32 lg:w-[72px] xl:w-[78px] ring-active"
                       >
                         <img
                           :src="image.image"
+                          @mouseover="toggleInfoImage(image.image)"
                           alt="thumbnail"
                           className="rounded-xl hover:opacity-50 transition active"
                           id="thumb-1"
@@ -269,6 +270,10 @@ const props = defineProps({
 });
 
 const count = ref(1);
+
+const toggleInfoImage = (image) => {
+  props.product.image = image;
+};
 
 const addToCart = async (id) => {
   await axios

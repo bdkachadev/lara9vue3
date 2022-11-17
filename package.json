@@ -28,6 +28,10 @@
         "@stripe/stripe-js": "^1.42.1",
         "@vue-stripe/vue-stripe": "^4.4.4",
         "@vueform/multiselect": "^2.5.6",
+        "filepond": "^4.30.4",
+        "filepond-plugin-file-validate-type": "^1.2.8",
+        "filepond-plugin-image-preview": "^4.6.11",
+        "vue-filepond": "^7.0.3",
         "vue-multiselect": "^2.1.6",
         "vue-sweetalert2": "^5.0.5",
         "vue-toastification": "^2.0.0-rc.5"

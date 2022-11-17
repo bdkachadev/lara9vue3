@@ -50,6 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => session('error')
 
             ],
+            'csrf_token' => csrf_token(),
 
             // Synchronously
             //  'appName' => config('app.name'),

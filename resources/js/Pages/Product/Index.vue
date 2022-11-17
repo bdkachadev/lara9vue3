@@ -5,10 +5,10 @@
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Products</h2>
     </template>
-    <div className="py-8">
+    <div className="">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <div class=" text-center">
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"

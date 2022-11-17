@@ -23,6 +23,10 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    // public function welcome(){
+
+    // }
     public function index()
     {
         $productsCount = Product::count();

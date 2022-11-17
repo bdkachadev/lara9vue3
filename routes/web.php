@@ -15,7 +15,10 @@ use App\Http\Controllers\Client\HomeController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AttributeController;
+use App\Http\Controllers\AttributeValueController;
 use App\Http\Controllers\BrandController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +66,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/orders', OrderController::class);
         Route::resource('/categories', CategoryController::class);
         Route::resource('/brands', BrandController::class);
+        Route::resource('/attributes', AttributeController::class);
+        Route::resource('/attributesValue', AttributeValueController::class);
     });
 
     // client side routes
