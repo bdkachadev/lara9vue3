@@ -65,7 +65,7 @@
                         </svg>
                       </button>
                       <img
-                        :src="product.image"
+                        :src="myImage"
                         alt="sneaker"
                         className="object-cover h-96 w-96 block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
                         id="hero"
@@ -240,6 +240,25 @@
                         Add to cart
                       </button>
                     </div>
+                    <div className="flex flex-col gap-5 mt-8 sm:flex-row lg:mb-0">
+                      <div
+                        className="w-full h-10 text-sm bg-light py-2 flex items-center justify-between rounded-lg font-bold relatives sm:w-80"
+                      >
+                        <Multiselect
+                          :close-on-select="true"
+                          :searchable="true"
+                          :create-option="true"
+                          placeholder="-- Size --"
+                        />
+                        &nbsp;
+                        <Multiselect
+                          :close-on-select="true"
+                          :searchable="true"
+                          :create-option="true"
+                          placeholder="-- Color --"
+                        />
+                      </div>
+                    </div>
                   </section>
                 </main>
               </div>
@@ -268,16 +287,22 @@ const props = defineProps({
 
   //   can: Object,
 });
-
+var myImage = ref(props.product.images[0]["image"]);
 const count = ref(1);
 
 const toggleInfoImage = (image) => {
-  props.product.image = image;
+  alert(image);
+  myImage = image;
+  alert(myImage);
+  // $("#hero").attr("src") = image;
 };
 
 const addToCart = async (id) => {
   await axios
-    .post(route("manage.carts.store"), { count: count.value, id: id })
+    .post(route("manage.carts.store"), {
+      count: count.value,
+      id: id,
+    })
     // .post(route("manage.carts.store"), { id: id })
     .then((response) => {
       window.location.href = route("manage.carts.index");
@@ -293,5 +318,4 @@ const addToCart = async (id) => {
     });
 };
 </script>
-
-<style :src="@vueform/multiselect/themes/default.css"></style>
+<style src="@vueform/multiselect/themes/default.css"></style>

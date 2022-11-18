@@ -8,7 +8,7 @@
     <div className="">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class=" text-center">
+          <div class="text-center">
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -67,7 +67,7 @@
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <td className="py-4 px-6">
-                    <img :src="product.image" width="200" height="200" />
+                    <img :src="product.images[0]['image']" width="200" height="200" />
                   </td>
                   <th className="py-4 px-6">
                     {{ product.title }}

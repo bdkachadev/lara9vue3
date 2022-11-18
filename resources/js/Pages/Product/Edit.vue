@@ -147,7 +147,7 @@
                   </div>
                   <div className="mb-4">
                     <BreezeLabel for="image" value="Image" />
-                    <BreezeInput
+                    <!-- <BreezeInput
                       id="image"
                       type="file"
                       @input="productForm.image = $event.target.files"
@@ -155,11 +155,20 @@
                       v-model="productForm.image"
                       autofocus
                       multiple
+                    /> -->
+                    <FilePond
+                      name="productImage"
+                      ref="filepondProductImageInput"
+                      class-name="my-pond"
+                      allow-multiple="true"
+                      accepted-file-types="image/jpeg, image/png"
+                      @init="handleFilePondInit"
+                      @processfile="handleFilePondProductImageProcess"
+                      @removefile="handleFilePondProductImageRemoveFile"
                     />
-
-                    <span className="text-red-600" v-if="productForm.errors.image">
+                    <!-- <span className="text-red-600" v-if="productForm.errors.image">
                       {{ productForm.errors.image }}
-                    </span>
+                    </span> -->
                   </div>
                 </div>
               </div>
@@ -188,6 +197,20 @@ import BreezeInput from "@/Components/TextInput.vue";
 import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
+import { reactive, ref, onMounted } from "vue";
+
+// Import filepond
+import vueFilePond, { setOptions } from "vue-filepond";
+
+// Import filepond plugins
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.esm.js";
+import FilePondPluginImagePreview from "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.esm.js";
+
+// Import filepond styles
+import "filepond/dist/filepond.min.css";
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css";
+
+const filepondProductImageInput = ref(null); // Reference the input to clear the files later
 
 const props = defineProps({
   product: Object,
@@ -196,6 +219,8 @@ const props = defineProps({
   brandsData: Object,
   brandsOption: Object,
   unitsOption: Object,
+
+  csrf_token: String,
 });
 
 const productForm = useForm({
@@ -204,16 +229,62 @@ const productForm = useForm({
   price: props.product.price,
   quantity: props.product.quantity,
   title: props.product.title,
-  image: null,
+  productImage: [],
   category: props.product.category_id,
   brand: props.product.brand_id,
   unit: props.product.unit,
 });
 
 const updateProduct = (event) => {
-  productForm.put(route("manage.products.update", productForm.id), {
-    onFinish: () => event.target.reset(),
+  // productForm.put(route("manage.products.update", productForm.id), {
+  //   onFinish: () => event.target.reset(),
+  // });
+
+  productForm
+    .transform((data) => {
+      // console.log(data.productImage.map((item) => item.serverId));
+      // alert(data.productImage.map((item) => item.serverId));
+      return {
+        ...data,
+        productImage: data.productImage.map((item) => item.serverId), // Pluck only the serverIds
+      };
+    })
+    .put(route("manage.products.update", productForm.id), {
+      onSuccess: () => {
+        filepondProductImageInput.value.removeFiles(), event.target.reset();
+      },
+    });
+};
+
+// Create FilePond component
+const FilePond = vueFilePond(FilePondPluginFileValidateType, FilePondPluginImagePreview);
+
+// Set global options on filepond init
+const handleFilePondInit = () => {
+  setOptions({
+    credits: false,
+    server: {
+      url: "/filepond",
+      headers: {
+        "X-CSRF-TOKEN": props.csrf_token,
+      },
+    },
   });
+};
+// Set the server id from response
+const handleFilePondProductImageProcess = (error, file) => {
+  console.log(file.id);
+  console.warn(file.serverId);
+  productForm.productImage.push({
+    id: file.id,
+    serverId: file.serverId,
+  });
+};
+// Remove the server id on file remove
+const handleFilePondProductImageRemoveFile = (error, file) => {
+  productForm.productImage = productForm.productImage.filter(
+    (item) => item.id !== file.id
+  );
 };
 </script>
 <style src="@vueform/multiselect/themes/default.css"></style>

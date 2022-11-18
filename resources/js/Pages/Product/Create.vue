@@ -491,8 +491,8 @@
                       name="productImage"
                       ref="filepondProductImageInput"
                       class-name="my-pond"
-                      allow-multiple="false"
-                      accepted-file-types="image/*"
+                      allow-multiple="true"
+                      accepted-file-types="image/jpeg, image/png"
                       @init="handleFilePondInit"
                       @processfile="handleFilePondProductImageProcess"
                       @removefile="handleFilePondProductImageRemoveFile"
@@ -577,7 +577,7 @@
                     />
                   </div>
                 </div>
-                <div class="col-span-2">
+                <!--     <div class="col-span-2">
                   <div className="mb-4">
                     <BreezeLabel for="image" value="Image" />
                     <BreezeInput
@@ -585,11 +585,20 @@
                       type="file"
                       @input="item.image = $event.target.files[0]"
                       className="shadow appearance-none border rounded w-full px-3 text-gray-700  leading-tight focus:outline-none focus:shadow-outline w-full cursor-pointer rounded-lg border  text-gray-600 file:mr-5 file:rounded-lg file:border-none file:bg-indigo-600 file:p-2 file:text-white hover:file:cursor-pointer hover:file:bg-indigo-500"
-                      v-model="item.image"
                       autofocus
+                    /> 
+                    <FilePond
+                      name="variantImage"
+                      ref="filepondProductVariantImageInput"
+                      class-name="my-pond"
+                      allow-multiple="false"
+                      accepted-file-types="image/jpeg, image/png"
+                      @init="handleFilePondInit"
+                      @processfile="handleFilePondProductVariantImageProcess"
+                      @removefile="handleFilePondProductVariantImageRemoveFile"
                     />
                   </div>
-                </div>
+                </div> --->
                 <div>
                   <div className="mb-4">
                     <a
@@ -647,6 +656,7 @@ import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css
 
 const filepondProductImageInput = ref(null); // Reference the input to clear the files later
 
+// const filepondProductVariantImageInput = ref(null); // Reference the input to clear the files later
 const props = defineProps({
   options: Object,
   products: Object,
@@ -681,7 +691,7 @@ const productForm = useForm({
       quantity: "",
       size: "",
       color: "",
-      image: "",
+      // variantImage: null,
     },
   ]),
 });
@@ -731,16 +741,19 @@ const submitProduct = (event) => {
   // });
   productForm
     .transform((data) => {
-      // console.log(data.productImage.map((item) => item.serverId));
+      console.log(data);
       // alert(data.productImage.map((item) => item.serverId));
       return {
         ...data,
         productImage: data.productImage.map((item) => item.serverId), // Pluck only the serverIds
+        // variantImage: data.variantImage.map((item) => item.serverId), // Pluck only the serverIds
       };
     })
     .post(route("manage.products.store"), {
       onSuccess: () => {
-        filepondProductImageInput.value.removeFiles(), event.target.reset();
+        filepondProductImageInput.value.removeFiles(),
+          // filepondProductVariantImageInput.value.removeFiles(),
+          event.target.reset();
       },
     });
 };
@@ -774,6 +787,16 @@ const handleFilePondProductImageRemoveFile = (error, file) => {
     (item) => item.id !== file.id
   );
 };
+// // Set the server id from response
+// const handleFilePondProductVariantImageProcess = (error, file) => {
+//   console.log(file.id);
+//   console.warn(file.serverId);
+//   productForm.dynamic.variantImage = file.serverId;
+// };
+// // Remove the server id on file remove
+// const handleFilePondProductVariantImageRemoveFile = (error, file) => {
+//   productForm.dynamic.variantImage = null;
+// };
 const submitAttribute = (event) => {
   attributeForm.post(route("manage.attributes.store"), {
     onFinish: () => event.target.reset(),

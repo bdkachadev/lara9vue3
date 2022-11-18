@@ -31,7 +31,7 @@ class HomeController extends Controller
     {
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
-        $products = Product::all();
+        $products = Product::with("images")->get();
 
 
         $categories = Category::get();

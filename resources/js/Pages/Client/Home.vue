@@ -261,7 +261,7 @@
                       </div>
                       <div class="prod-img">
                         <img
-                          :src="product.image"
+                          :src="product.images[0]['image']"
                           class="w-full h-64 object-cover object-center"
                         />
                       </div>

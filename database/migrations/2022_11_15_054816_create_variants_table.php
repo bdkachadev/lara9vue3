@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer("color_id");
             $table->string("price");
             $table->string("quantity");
-            $table->string("variant_image");
+            $table->string("variant_image")->nullable(true);
             $table->timestamps();
         });
     }

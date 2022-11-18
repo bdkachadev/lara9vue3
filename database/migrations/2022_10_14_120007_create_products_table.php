@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('description');
             $table->bigInteger('price');
             $table->bigInteger('quantity');
-            $table->string('image');
             $table->integer('category_id');
             $table->integer('brand_id');
             $table->string('unit');
