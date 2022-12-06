@@ -18,6 +18,9 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\AttributeValueController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\GeneralController;
+use App\Http\Controllers\CustomTaxonomyController;
+use App\Http\Controllers\TaxonomyAttributeController;
 
 
 /*
@@ -58,6 +61,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/orders/changeStatus', [OrderController::class, "changeStatus"])->name('orders.changeStatus');
         Route::post('/orders/cancleOrder', [OrderController::class, "cancleOrder"])->name('orders.cancleOrder');
 
+        Route::post('/general/onChangeAttribute', [GeneralController::class, 'onChangeAttribute'])->name('general.onChangeAttribute');
+        Route::post('/general/checkAttributeValue', [GeneralController::class, 'checkAttributeValue'])->name('general.checkAttributeValue');
+        // Route::post('/general/onChangeAttributeValue', [GeneralController::class, 'onChangeAttributeValue'])->name('general.onChangeAttributeValue');
+
+        Route::post('/general/getNameOfAttribute', [GeneralController::class, 'getNameOfAttribute'])->name('general.getNameOfAttribute');
+        Route::post('/general/onChangeVariant', [GeneralController::class, 'onChangeVariant'])->name('general.onChangeVariant');
+
+
         Route::resource('/users', UserController::class);
         Route::resource('/roles', RoleController::class);
         Route::resource('/permissions', PermissionController::class);
@@ -68,6 +79,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/brands', BrandController::class);
         Route::resource('/attributes', AttributeController::class);
         Route::resource('/attributesValue', AttributeValueController::class);
+        Route::resource('/customTaxonomy', CustomTaxonomyController::class);
+        Route::resource('/taxonomyAttribute', TaxonomyAttributeController::class);
     });
 
     // client side routes

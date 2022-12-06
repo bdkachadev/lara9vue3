@@ -201,7 +201,7 @@
                 :key="section.id"
                 class="border-b border-gray-200 py-2"
                 v-slot="{ open }"
-              >
+                >
                 <h3 class="-my-3 flow-root">
                   <DisclosureButton
                     class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500"
@@ -260,8 +260,9 @@
                         </p> -->
                       </div>
                       <div class="prod-img">
+                        <!-- {{product.images[0]['image']}} -->
                         <img
-                          :src="product.images[0]['image']"
+                          :src="product.images.map((item) => item.image)[0]"
                           class="w-full h-64 object-cover object-center"
                         />
                       </div>
@@ -517,7 +518,7 @@ const filterBy = computed(() => {
       });
     }
     if (sortBy == "hTolPrice") {
-      //   alert("hTolprice");
+      //   alert("hTolprice");z`
       props.products = props.products.sort((a, b) => {
         return b.price - a.price; //a[sortBy].toString().localeCompare(b[sortBy].toString());
       });

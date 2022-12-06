@@ -107,7 +107,6 @@ class AttributeController extends Controller
     public function destroy(Attribute $attribute)
     {
         //
-        dd($attribute);
         $attribute->delete();
         return Redirect::back()->with("success", "Attribute Deleted Successfully");
     }

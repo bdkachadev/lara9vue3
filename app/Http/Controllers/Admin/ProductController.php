@@ -13,12 +13,19 @@ use App\Models\Attributes\Size;
 use App\Models\Attributes\Color;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
+use App\Models\TaxonomyAttribute;
+use App\Models\CustomTaxonomy;
+
 use App\Models\Variant;
+use App\Models\ProductTaxonomy;
+use App\Models\VariantAttribute;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
 use Illuminate\Support\Facades\Auth;
 use RahulHaque\Filepond\Facades\Filepond;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+
 
 class ProductController extends Controller
 {
@@ -89,28 +96,51 @@ class ProductController extends Controller
 
         $sizesOption = [];
         $colorsOption = [];
+        $attributesValueOption = [];
         $attributesOption = [];
+
         $attributes = Attribute::with("values")->get();
         $attributesData = $attributes;
 
-        foreach ($attributes as $k => $attribute) {
-
-            $attributesOption[$k]["label"] = $attribute->name;
-            $attributesOption[$k]["value"] = $attribute->id;
-            if ($attribute->slug == "size") {
-                foreach ($attribute->values as $k => $a) {
-                    $sizesOption[$k]["label"] = $a->value;
-                    $sizesOption[$k]["value"] = $a->id;
-                }
-            } elseif ($attribute->slug == "color") {
-                foreach ($attribute->values as $k => $a) {
-                    $colorsOption[$k]["label"] = $a->value;
-                    $colorsOption[$k]["value"] = $a->id;
-                }
-            }
+        foreach ($attributes as $attkey => $attribute) {
+            $attributesOption[$attkey]["label"] = $attribute->name;
+            $attributesOption[$attkey]["value"] = $attribute->id;
+            // foreach ($attribute->values as $attValkey => $attributeValue) {
+            //     $attributesValueOption[$attkey][$attValkey]["attribute_id"] = $attributeValue->attribute_id;
+            //     $attributesValueOption[$attkey][$attValkey]["label"] = $attribute->name . " - " . $attributeValue->value;
+            //     $attributesValueOption[$attkey][$attValkey]["value"] = $attributeValue->id;
+            // }
+            // if ($attribute->slug == "size") {
+            //     foreach ($attribute->values as $k => $a) {
+            //         $sizesOption[$k]["label"] = $a->value;
+            //         $sizesOption[$k]["value"] = $a->id;
+            //     }
+            // } elseif ($attribute->slug == "color") {
+            //     foreach ($attribute->values as $k => $a) {
+            //         $colorsOption[$k]["label"] = $a->value;
+            //         $colorsOption[$k]["value"] = $a->id;
+            //     }
+            // }
         }
-        $attributesValueData = AttributeValue::get();
         // dd($attributesOption);
+        // dd($attributesValueOption);
+
+        $attributesValueData = AttributeValue::with("attribute")->get();
+        foreach ($attributesValueData as $attValkey => $attributeValue) {
+            $attributesValueOption[$attValkey]["attribute_id"] = $attributeValue->attribute_id;
+            $attributesValueOption[$attValkey]["label"] = $attributeValue->attribute->name . " - " . $attributeValue->value;
+            $attributesValueOption[$attValkey]["value"] = $attributeValue->id;
+        }
+
+        $taxonomyAttributesOption = [];
+        $taxonomy_attributes = TaxonomyAttribute::get();
+        foreach ($taxonomy_attributes as $ki => $ta) {
+            $taxonomyAttributesOption[$ki]["label"] = $ta->taxonomy->taxonomy_name . " - " . $ta->attribute_name;
+            $taxonomyAttributesOption[$ki]["value"] = $ta->id;
+        }
+
+
+        // dd($categoriesOption);
         // $attributesOption = [["label" => "Size", "value" => "size"], ["label" => "Color", "value" => "color"]];
         return Inertia::render('Product/Create', [
             "categoriesData" => $categoriesData,
@@ -123,6 +153,8 @@ class ProductController extends Controller
             "sizesOption" => $sizesOption,
             "attributesData" => $attributesData,
             "attributesValueData" => $attributesValueData,
+            "attributesValueOption" => $attributesValueOption,
+            "taxonomyAttributesOption" => $taxonomyAttributesOption
         ]);
         // return Inertia::render('Product/Create', ["categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption, "colorsOption" => $colorsOption, "sizesOption" => $sizesOption]);
     }
@@ -135,6 +167,8 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request);
+        // dd("l");
         // $productImageInfo = Filepond::field($request->productImage)->moveTo("uploads/products/" . $product->id . "/Image-" . $product->id);
 
         // dd($request);
@@ -178,6 +212,7 @@ class ProductController extends Controller
         // dd($request);
         Validator::make($request->all(), [
             'title' => ['required'],
+            'taxonomy_attribute' => ['required'],
             'description' => ['required'],
             'price' => ['required'],
             'quantity' => ['required'],
@@ -221,8 +256,8 @@ class ProductController extends Controller
         // $product->image = url('/') . "/uploads/" . $image_name;
         $product->save();
 
-        $productImageInfo = Filepond::field($request->productImage)->moveTo("uploads/products/" . $product->id . "/Image-" . $product->id);
-        if (count($productImageInfo) > 0) {
+        $productImageInfo = Filepond::field($request->productImage)->moveTo("uploads/products/" . $product->id . "/ProductImage-" . $product->id);
+        if (!is_null($productImageInfo) && count($productImageInfo) > 0) {
             foreach ($productImageInfo as $Image) {
                 $product_image = new  ProductImage();
                 $product_image->image = "/storage/" . $Image["location"];
@@ -250,10 +285,10 @@ class ProductController extends Controller
         //     Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
         // }
 
-
+        dump($request->dynamic);
 
         if (count($request->dynamic) > 0) {
-            foreach ($request->dynamic as $dynamic) {
+            foreach ($request->dynamic as $ky => $dynamic) {
                 // if ($dynamic->hasFile('image')) {
                 //     $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
                 //     $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
@@ -263,16 +298,49 @@ class ProductController extends Controller
                 //     $product_image->product_id = $product->id;
                 //     $product_image->save();
                 // }
-                Variant::create([
-                    "sku" => $dynamic["sku"],
-                    "product_id" => $product->id,
-                    "size_id" => $dynamic["size"],
-                    "color_id" => $dynamic["color"],
-                    "price" => $dynamic["price"],
-                    "quantity" => $dynamic["quantity"],
-                    // "variant_image" => $dynamic["image"],
+                // Variant::create([
+                //     "sku" => $dynamic["sku"],
+                //     "product_id" => $product->id,
+                //     "size_id" => $dynamic["size"],
+                //     "color_id" => $dynamic["color"],
+                //     "price" => $dynamic["price"],
+                //     "quantity" => $dynamic["quantity"],
+                //     // "variant_image" => $dynamic["image"],
 
-                ]);
+                // ]);
+                if (!is_null($dynamic['image'])) {
+                    $image_name = "VariantImage-" . $product->id . "." . $dynamic["image"]->getClientOriginalExtension();
+                    // dd($image_name);
+                    // $dynamic->move(public_path('uploads/products/' . $product->id . "/VariantImage-" . $product->id), $image_name);
+                    $dynamic["image"]->storeAs('uploads/products/' . $product->id, $image_name);
+                }
+                $variant = new Variant;
+
+                $variant->sku = strtolower($product->title) . "-" . $dynamic["unit"] . "-" . $dynamic["price"] . "-" . $dynamic["quantity"] . "-sku-" . $ky;
+                $variant->product_id = $product->id;
+                // $variant->size_id = $dynamic["size"];
+                $variant->unit = $dynamic["unit"];
+                // $variant->color_id = $dynamic["color"];
+                $variant->price = $dynamic["price"];
+                $variant->quantity = $dynamic["quantity"];
+                $variant->image = "/storage/" . $image_name;
+                $variant->variant_attributes = json_encode($dynamic["attribute_value"]);
+                $variant->save();
+                // foreach ($dynamic["attribute_value"] as $att) {
+                //     $variantAtt = new VariantAttribute();
+                //     $variantAtt->variant_id = $variant->id;
+                //     $variantAtt->attribute_value_id = $att;
+                //     $variantAtt->save();
+                // }
+            }
+        }
+
+        if (count($request->taxonomy_attribute) > 0) {
+            foreach ($request->taxonomy_attribute as $ky => $ta) {
+                $ProductTaxonomy = new ProductTaxonomy;
+                $ProductTaxonomy->attribute_id = $ta;
+                $ProductTaxonomy->product_id = $product->id;
+                $ProductTaxonomy->save();
             }
         }
 
@@ -353,8 +421,46 @@ class ProductController extends Controller
             $brandsOption[$k]["label"] = $c->name;
             $brandsOption[$k]["value"] = $c->id;
         }
+        $taxonomyAttributesOption = [];
+        $taxonomy_attributes = TaxonomyAttribute::get();
+        foreach ($taxonomy_attributes as $ki => $ta) {
+            $taxonomyAttributesOption[$ki]["label"] = $ta->taxonomy->taxonomy_name . " - " . $ta->attribute_name;
+            $taxonomyAttributesOption[$ki]["value"] = $ta->id;
+        }
+        $selectedTaxonomyAttributesOption = [];
+        foreach ($product->taxonomy_attributes as $ki => $ta) {
+            $selectedTaxonomyAttributesOption[$ki]["label"] = $ta->taxonomy->taxonomy_name . " - " . $ta->attribute_name;
+            $selectedTaxonomyAttributesOption[$ki]["value"] = $ta->id;
+        }
+        $attributesValueOption = [];
+        $attributesValueData = AttributeValue::with("attribute")->get();
+        foreach ($attributesValueData as $attValkey => $attributeValue) {
+            $attributesValueOption[$attValkey]["attribute_id"] = $attributeValue->attribute_id;
+            $attributesValueOption[$attValkey]["label"] = $attributeValue->attribute->name . " - " . $attributeValue->value;
+            $attributesValueOption[$attValkey]["value"] = $attributeValue->id;
+        }
+
+        $dynamicArr = [];
+        foreach ($product->variants as $ky => $variant) {
+            $dynamicArr[$ky]["price"] = $variant->price;
+            $dynamicArr[$ky]["unit"] = $variant->unit;
+            $dynamicArr[$ky]["quantity"] = $variant->quantity;
+            $dynamicArr[$ky]["variant_id"] = $variant->id;
+
+            $dynamicArr[$ky]["attribute_value"] = json_decode($variant->variant_attributes); //$variant->variant_attributes;
+        }
         $unitsOption = ["Piece", "Kg", "Liter", "Grams"];
-        return Inertia::render('Product/Edit', ['product' => $product, "categoriesData" => $categoriesData, "brandsData" => $brandsData, "categoriesOption" => $categoriesOption, "brandsOption" => $brandsOption, "unitsOption" => $unitsOption]);
+        return Inertia::render('Product/Edit', [
+            'product' => $product,
+            "categoriesData" => $categoriesData,
+            "brandsData" => $brandsData,
+            "categoriesOption" => $categoriesOption,
+            "brandsOption" => $brandsOption,
+            "unitsOption" => $unitsOption,
+            "taxonomyAttributesOption" => $taxonomyAttributesOption,
+            "attributesValueOption" => $attributesValueOption,
+            "dynamicArr" => $dynamicArr
+        ]);
     }
 
     /**
@@ -369,7 +475,6 @@ class ProductController extends Controller
         // if ($validator->fails()) {
         //     return back()->withErrors($validator)->with('error', 'Something went wrong!.');
         // }
-        // dd($product);
         Validator::make($request->all(), [
             'title' => ['required'],
             'description' => ['required'],
@@ -393,10 +498,11 @@ class ProductController extends Controller
             ProductImage::where("product_id", $product->id)->delete();
         }
         $productImageInfo = Filepond::field($request->productImage)->moveTo("uploads/products/" . $product->id . "/Image-" . $product->id);
-        if (count($productImageInfo) > 0) {
+        if (!is_null($productImageInfo) && count($productImageInfo) > 0) {
             foreach ($productImageInfo as $Image) {
                 $product_image = new  ProductImage();
-                $product_image->image = $Image["location"];
+                // $product_image->image = $Image["location"];
+                $product_image->image = "/storage/" . $Image["location"];
                 $product_image->product_id = $product->id;
                 $product_image->save();
             }
@@ -419,7 +525,64 @@ class ProductController extends Controller
         //     }
         //     Product::where("id", $product->id)->update(array("image" => $imageStore . $image_name));
         // }
+        ProductTaxonomy::where("product_id", $product->id)->delete();
+        foreach ($request->taxonomy_attribute as $ky => $ta) {
+            $ProductTaxonomy = new ProductTaxonomy;
+            $ProductTaxonomy->attribute_id = $ta;
+            $ProductTaxonomy->product_id = $product->id;
+            $ProductTaxonomy->save();
+        }
+        // Variant::where("product_id", $product->id)->delete();
+        foreach ($request->dynamic as $ky => $dynamic) {
+            // if ($dynamic->hasFile('image')) {
+            //     $image_name = time() . '_' . str_replace(" ", "_", $f->getClientOriginalName());
+            //     $f->move(public_path('uploads/products/' . $product->id . "/"), $image_name);
+            //     $product_image = new  ProductImage();
+            //     // $product_image->image = $image_name;
+            //     $product_image->image = $imageStore . $image_name;
+            //     $product_image->product_id = $product->id;
+            //     $product_image->save();
+            // }
+            // Variant::create([
+            //     "sku" => $dynamic["sku"],
+            //     "product_id" => $product->id,
+            //     "size_id" => $dynamic["size"],
+            //     "color_id" => $dynamic["color"],
+            //     "price" => $dynamic["price"],
+            //     "quantity" => $dynamic["quantity"],
+            //     // "variant_image" => $dynamic["image"],
 
+            // ]);
+            if (isset($dynamic["image"]) && !is_null($dynamic["image"])) {
+                $image_name = "VariantImage-" . $product->id . "." . $dynamic["image"]->getClientOriginalExtension();
+                // dd($image_name);
+                // $dynamic->move(public_path('uploads/products/' . $product->id . "/VariantImage-" . $product->id), $image_name);
+                $dynamic["image"]->storeAs('uploads/products/' . $product->id, $image_name);
+            }
+
+            $checkDup = Variant::where("id", $dynamic["variant_id"])->first();
+            if ($checkDup) {
+                $variant = $checkDup;
+            } else {
+                $variant = new Variant;
+                $variant->image = $image_name; //$dynamic["unit"];
+            }
+            $variant->sku = strtolower($product->title) . "-" . $dynamic["unit"] . "-" . $dynamic["price"] . "-" . $dynamic["quantity"] . "-sku-" . $ky;
+            $variant->product_id = $product->id;
+            // $variant->size_id = $dynamic["size"];
+            // $variant->color_id = $dynamic["color"];
+            $variant->price = $dynamic["price"];
+            $variant->unit = $dynamic["unit"];
+            $variant->quantity = $dynamic["quantity"];
+            $variant->variant_attributes = json_encode($dynamic["attribute_value"]);
+            $variant->save();
+            // foreach ($dynamic["attribute_value"] as $att) {
+            //     $variantAtt = new VariantAttribute();
+            //     $variantAtt->variant_id = $variant->id;
+            //     $variantAtt->attribute_value_id = $att;
+            //     $variantAtt->save();
+            // }
+        }
         return Redirect::route('manage.products.index')->with('success', 'Product Updated Successfully!!!');
     }
 
@@ -439,36 +602,54 @@ class ProductController extends Controller
     public function detail($id)
     {
         $product = Product::with("images", "variants")->find($id);
-        
-        foreach ($product->variants as $variant) {
-            dd($variant);
-            $attribureIds[] = $variant->attribute_id;
-        }
-        dd($attribureIds);
-        $sizesOption = [];
-        $colorsOption = [];
-        $attributesOption = [];
-        $attributesValue = AttributeValue::with("values")->whereIn("id", $attribureIds)->get();
-        $attributesData = $attributes;
 
-        // foreach ($attributes as $k => $attribute) {
-        // $attributesOption[$k]["label"] = $attribute->name;
-        // $attributesOption[$k]["value"] = $attribute->id;
-        // if ($attribute->slug == "size") {
-        foreach ($attributesValue as $k => $v) {
-            $sizesOption[$k]["label"] = $a->value;
-            $sizesOption[$k]["value"] = $a->id;
-            // }
-            // } elseif ($attribute->slug == "color") {
-            foreach ($attributesValue as $k => $v) {
-                $colorsOption[$k]["label"] = $a->value;
-                $colorsOption[$k]["value"] = $a->id;
-            }
-            // }
-            // }
-            $attributesValueData = AttributeValue::get();
+        // foreach ($product->variants as $variant) {
+        //     // dd($variant);
+        //     $attribureIds[] = $variant->attribute_id;
+        // }
+        // // dd($attribureIds);
+        // $sizesOption = [];
+        // $colorsOption = [];
+        // $attributesOption = [];
+        // $attributesValue = AttributeValue::with("values")->whereIn("id", $attribureIds)->get();
+        // $attributesData = $attributes;
+
+        // // foreach ($attributes as $k => $attribute) {
+        // // $attributesOption[$k]["label"] = $attribute->name;
+        // // $attributesOption[$k]["value"] = $attribute->id;
+        // // if ($attribute->slug == "size") {
+        // foreach ($attributesValue as $k => $v) {
+        //     $sizesOption[$k]["label"] = $a->value;
+        //     $sizesOption[$k]["value"] = $a->id;
+        //     // }
+        //     // } elseif ($attribute->slug == "color") {
+        //     foreach ($attributesValue as $k => $v) {
+        //         $colorsOption[$k]["label"] = $a->value;
+        //         $colorsOption[$k]["value"] = $a->id;
+        //     }
+        //     // }
+        //     // }
+        //     $attributesValueData = AttributeValue::get();
+        // }
+
+        $variant_attributes = array_column($product->variants->toArray(), "variant_attributes");
+        $variantAttributesIds = [];
+        foreach ($variant_attributes as  $ki => $att) {
+            $variantAttributesIds = array_merge($variantAttributesIds, json_decode($att));
         }
 
-        return Inertia::render('Client/Product/Detail', ['product' => $product]);
+        // $variant_attributes = VariantAttribute::whereIn("variant_id", $variant_ids)->get();
+
+        // $attribute_value_ids = array_unique(array_column($variant_attributes->toArray(), "attribute_value_id"));
+        // dd($attribute_value_ids);
+        $attribute_values = AttributeValue::with("attribute")->whereIn("id", $variantAttributesIds)->get();
+        $Arr = [];
+        foreach ($attribute_values as $ky => $av) {
+            // $Arr[$av->attribute->id . "-" . $av->attribute->name][$ky]["value"] = $av->id;
+            // $Arr[$av->attribute->id . "-" . $av->attribute->name][$ky]["label"]  = $av->value;
+            $Arr[$av->attribute_id][$ky]["value"] = $av->id;
+            $Arr[$av->attribute_id][$ky]["label"]  = $av->value;
+        }
+        return Inertia::render('Client/Product/Detail', ['product' => $product, "Arr" => $Arr]);
     }
 }

@@ -105,6 +105,33 @@ onBeforeMount(() => {
                 >
                   Products
                 </NavLink>
+
+                <NavLink
+                  v-if="
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin' ||
+                      $page.props.auth.role === 'manager')
+                  "
+                  :href="route('manage.categories.index')"
+                  :active="route().current('manage.categories.index')"
+                >
+                  Categories
+                </NavLink>
+
+                <NavLink
+                  v-if="
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin' ||
+                      $page.props.auth.role === 'manager')
+                  "
+                  :href="route('manage.brands.index')"
+                  :active="route().current('manage.brands.index')"
+                >
+                  Brands
+                </NavLink>
+
                 <NavLink
                   v-if="
                     $page.props.auth.role &&
@@ -123,6 +150,19 @@ onBeforeMount(() => {
                   :active="route().current('manage.orders.index')"
                 >
                   My Orders
+                </NavLink>
+
+                <NavLink
+                  v-if="
+                    $page.props.auth.role &&
+                    ($page.props.auth.role === 'super_admin' ||
+                      $page.props.auth.role === 'admin' ||
+                      $page.props.auth.role === 'manager')
+                  "
+                  :href="route('manage.customTaxonomy.index')"
+                  :active="route().current('manage.customTaxonomy.index')"
+                >
+                  Custom Taxonomy
                 </NavLink>
               </div>
             </div>

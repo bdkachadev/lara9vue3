@@ -15,6 +15,7 @@ class AttributeValue extends Model
         "slug",
         "value"
     ];
+    protected $table = "attribute_values";
 
     public function attribute()
     {

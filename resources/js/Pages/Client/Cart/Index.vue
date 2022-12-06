@@ -79,7 +79,7 @@
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <td className="py-4 px-6">
-                    <img :src="cart.image" width="200" height="200" />
+                    <!-- <img :src="cart.image" width="200" height="200" /> -->
                   </td>
                   <th
                     scope="row"

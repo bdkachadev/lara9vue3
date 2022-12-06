@@ -13,16 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('variants', function (Blueprint $table) {
+        Schema::create('custom_taxonomies', function (Blueprint $table) {
             $table->id();
-            $table->string("sku");
-            $table->integer("product_id");
-            $table->integer("size_id");
-            $table->integer("color_id");
-            $table->string("price");
-            $table->string("quantity");
-            $table->string("variant_image")->nullable(true);
             $table->timestamps();
+            $table->text("taxonomy_name");
+            $table->text("taxonomy_description")->nullable(true);
+            $table->string("taxonomy_image")->nullable(true);
+            $table->string("taxonomy_slug");
         });
     }
 
@@ -33,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('variants');
+        Schema::dropIfExists('custom_taxonomies');
     }
 };

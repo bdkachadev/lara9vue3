@@ -34,69 +34,7 @@
 
           <div className="overflow-x-auto relative shadow-md sm:rounded-lg">
             <div className="bg-white shadow-md rounded px-8 py-3  ">
-              <div class="grid grid-cols-4 gap-2">
-                <div>
-                  <div className="bg-white border-b border-gray-200">
-                    <div className="flow-root">
-                      <p className="float-left">Add/Edit Category</p>
-                    </div>
-                  </div>
-                  <input v-model="categoryForm.id" type="hidden" value="" />
-                  <div className="mb-4 mt-4">
-                    <BreezeLabel for="name" value="Name" />
-                    <BreezeInput
-                      id="name"
-                      type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                      v-model="categoryForm.name"
-                      autofocus
-                    />
-
-                    <span className="text-red-600" v-if="categoryForm.errors.name">
-                      {{ categoryForm.errors.name }}
-                    </span>
-                  </div>
-                  <div className="mb-4">
-                    <button
-                      @click="submitCategory"
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                      type="button"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <div className="bg-white border-b border-gray-200">
-                    <div className="flow-root">
-                      <p className="float-left">Add/Edit Brand</p>
-                    </div>
-                  </div>
-                  <input v-model="productForm.id" type="hidden" value="" />
-                  <div className="mb-4 mt-4">
-                    <BreezeLabel for="name" value="Name" />
-                    <BreezeInput
-                      id="name"
-                      type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                      v-model="brandForm.name"
-                      autofocus
-                    />
-
-                    <span className="text-red-600" v-if="brandForm.errors.name">
-                      {{ brandForm.errors.name }}
-                    </span>
-                  </div>
-                  <div className="mb-4">
-                    <button
-                      @click="submitBrand"
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                      type="button"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
+              <div class="grid grid-cols-2 gap-2">
                 <div>
                   <div className="bg-white border-b border-gray-200">
                     <div className="flow-root">
@@ -109,7 +47,7 @@
                     <BreezeInput
                       id="name"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="attributeForm.name"
                       autofocus
                     />
@@ -152,7 +90,7 @@
                     <BreezeInput
                       id="value"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="attributeValueForm.value"
                       autofocus
                     />
@@ -174,100 +112,7 @@
               </div>
             </div>
             <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 ">
-              <div class="grid grid-cols-4 gap-1">
-                <div>
-                  <div className="bg-white border-b border-gray-200">
-                    <div className="flow-root">
-                      <p className="float-left">Category Lists</p>
-                    </div>
-                  </div>
-
-                  <table
-                    className="w-full text-sm text-left text-gray-500 dark:text-gray-400 "
-                  >
-                    <thead
-                      className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-                    >
-                      <tr>
-                        <th scope="col" className="py-3 px-6">Name</th>
-                        <th scope="col" className="py-3 px-6">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="cat in categoriesData" className="overflow-y-scroll">
-                        <td scope="col" className="py-3 px-6">{{ cat.name }}</td>
-                        <td scope="col" className="py-3 px-6">
-                          <a
-                            @click="editCategory(cat.id)"
-                            className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                          >
-                            Edit
-                          </a>
-                          <a
-                            @click="destroyCategory(cat.id)"
-                            className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >Delete</a
-                          >
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- <div className="float-right">
-                    <Pagination class="mt-6" :links="categoriesData.links" />
-                  </div> -->
-                  <div
-                    v-if="categoriesData.length <= 0"
-                    className="mt-5 flex justify-center"
-                  >
-                    No found records!
-                  </div>
-                </div>
-                <div>
-                  <div className="bg-white border-b border-gray-200">
-                    <div className="flow-root">
-                      <p className="float-left">Brand Lists</p>
-                    </div>
-                  </div>
-                  <table
-                    className="w-full text-sm text-left text-gray-500 dark:text-gray-400"
-                  >
-                    <thead
-                      className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-                    >
-                      <tr>
-                        <th scope="col" className="py-3 px-6">Name</th>
-                        <th scope="col" className="py-3 px-6">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="brd in brandsData">
-                        <td scope="col" className="py-3 px-6">{{ brd.name }}</td>
-                        <td scope="col" className="py-3 px-6">
-                          <a
-                            @click="editBrand(brd.id)"
-                            className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                          >
-                            Edit
-                          </a>
-                          <a
-                            @click="destroyBrand(brd.id)"
-                            className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
-                            >Delete</a
-                          >
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <!-- <div className="float-right">
-                    <Pagination class="mt-6" :links="brandsData.links" />
-                  </div> -->
-                  <div
-                    v-if="categoriesData.length <= 0"
-                    className="mt-5 flex justify-center"
-                  >
-                    No found records!
-                  </div>
-                </div>
+              <div class="grid grid-cols-2 gap-1">
                 <div>
                   <div className="bg-white border-b border-gray-200">
                     <div className="flow-root">
@@ -370,7 +215,7 @@
             </div>
           </div>
 
-          <div className="p-6 bg-white border-b border-gray-200">
+          <div className="p-8 bg-white border-b border-gray-200">
             <div className="flow-root">
               <p className="float-left">Add Product</p>
             </div>
@@ -389,7 +234,7 @@
                     <BreezeInput
                       id="title"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="productForm.title"
                       autofocus
                     />
@@ -403,7 +248,7 @@
                     <BreezeInput
                       id="description"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="productForm.description"
                       autofocus
                     />
@@ -417,7 +262,7 @@
                     <BreezeInput
                       id="price"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="productForm.price"
                       autofocus
                     />
@@ -431,7 +276,7 @@
                     <BreezeInput
                       id="quantity"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       v-model="productForm.quantity"
                       autofocus
                     />
@@ -486,7 +331,7 @@
                   </div>
                   <div className="mb-4">
                     <BreezeLabel for="image" value="Image" />
-                    <!-- <BreezeInput id="image" type="file" @input="productForm.image = $event.target.files" className="shadow appearance-none border rounded w-full  px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline w-full cursor-pointer rounded-lg border  text-gray-600 file:mr-20 file:rounded-lg file:border-none file:bg-indigo-600 file:p-2 file:text-white hover:file:cursor-pointer hover:file:bg-indigo-500" v-model="productForm.image" autofocus multiple /> -->
+                    <!-- <BreezeInput id="image" type="file" @input="productForm.image = $event.target.files" className="shadow appearance-none border rounded w-full  px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full cursor-pointer rounded-lg border  text-gray-600 file:mr-20 file:rounded-lg file:border-none file:bg-indigo-600 file:p-2 file:text-white hover:file:cursor-pointer hover:file:bg-indigo-500" v-model="productForm.image" autofocus multiple /> -->
                     <FilePond
                       name="productImage"
                       ref="filepondProductImageInput"
@@ -497,39 +342,83 @@
                       @processfile="handleFilePondProductImageProcess"
                       @removefile="handleFilePondProductImageRemoveFile"
                     />
-                    <!-- <span className="text-red-600" v-if="productForm.errors.image">
-                      {{ productForm.errors.image }}
-                    </span> -->
-                    <div v-if="productForm.errors">
+                    <span className="text-red-600" v-if="productForm.errors.productImage">
+                      {{ productForm.errors.productImage }}
+                    </span>
+                    <!-- <div v-if="productForm.errors">
                       <div
                         v-for="(error, index) in productForm.errors"
                         class="text-red-500"
                       >
                         {{ error }}
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>
+              <div className="mb-4">
+                <BreezeLabel for="taxonomy_attribute" value="Taxonomy Attribute" />
+                <Multiselect
+                  id="taxonomy_attribute"
+                  v-model="productForm.taxonomy_attribute"
+                  :close-on-select="false"
+                  :searchable="true"
+                  :create-option="true"
+                  :options="taxonomyAttributesOption"
+                  mode="tags"
+                />
 
+                <span
+                  className="text-red-600"
+                  v-if="productForm.errors.taxonomy_attribute"
+                >
+                  {{ productForm.errors.taxonomy_attribute }}
+                </span>
+              </div>
               <div
-                class="grid grid-cols-8 gap-1"
+                class="grid grid-cols-10 gap-1"
                 v-for="(item, index) in productForm.dynamic"
                 :key="item"
               >
-                <div>
-                  <div className="mb-4">
+                <!-- <input v-model="item.attrArr" type="hidden" value="" /> -->
+                <BreezeInput
+                  id="variant_id"
+                  type="hidden"
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  v-model="productForm.dynamic[index].variant_id"
+                />
+                <!-- <div class="col-span-2">
+                  <div className="">
                     <BreezeLabel for="sku" value="Sku" />
-                    <BreezeInput
-                      id="sku"
-                      type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                      v-model="item.sku"
-                      autofocus
+                    <BreezeInput id="sku" type="text" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" v-model="item.sku" autofocus />
+                  </div>
+                </div> -->
+                <!-- <div>
+                  <div className="">
+                    <BreezeLabel for="attribute" value="Attribute" />
+                     <Multiselect v-model="item.attribute" :close-on-select="false" :searchable="true" :create-option="true" :options="attributesOption" @change="onChangeAttribute($event)" mode="tags" /> 
+                  </div>
+                </div>  -->
+                <div className="col-span-4">
+                  <div className="">
+                    <BreezeLabel for="attribute_value" value="Attribute Value" />
+                    <Multiselect
+                      :close-on-select="false"
+                      :searchable="true"
+                      :create-option="true"
+                      v-model="productForm.dynamic[index].attribute_value"
+                      :options="attributesValueOption"
+                      @click="
+                        checkAttributeValue(
+                          index,
+                          productForm.dynamic[index].attribute_value
+                        )
+                      "
+                      mode="tags"
                     />
                   </div>
                 </div>
-                <div>
+                <!-- <div>
                   <div className="mb-4">
                     <BreezeLabel for="size" value="Size" />
                     <Multiselect
@@ -540,8 +429,8 @@
                       :options="sizesOption"
                     />
                   </div>
-                </div>
-                <div>
+                </div> -->
+                <!-- <div>
                   <div className="mb-4">
                     <BreezeLabel for="color" value="Color" />
                     <Multiselect
@@ -552,27 +441,51 @@
                       :options="colorsOption"
                     />
                   </div>
-                </div>
+                </div> -->
                 <div>
-                  <div className="mb-4">
+                  <div className="">
                     <BreezeLabel for="price" value="Price" />
                     <BreezeInput
                       id="price"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                      v-model="item.price"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      v-model="productForm.dynamic[index].price"
                       autofocus
                     />
                   </div>
                 </div>
                 <div>
-                  <div className="mb-4">
+                  <div className="">
+                    <BreezeLabel for="unit" value="unit" />
+                    <Multiselect
+                      :close-on-select="true"
+                      :searchable="true"
+                      :create-option="true"
+                      v-model="productForm.dynamic[index].unit"
+                      :options="unitsOption"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="">
                     <BreezeLabel for="quantity" value="Quantity" />
                     <BreezeInput
                       id="quantity"
                       type="text"
-                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                      v-model="item.quantity"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      v-model="productForm.dynamic[index].quantity"
+                      autofocus
+                    />
+                  </div>
+                </div>
+                <div className="">
+                  <div className="">
+                    <BreezeLabel for="image" value="Image" />
+                    <BreezeInput
+                      id="image"
+                      type="file"
+                      @input="productForm.dynamic[index].image = $event.target.files[0]"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                       autofocus
                     />
                   </div>
@@ -600,9 +513,9 @@
                   </div>
                 </div> --->
                 <div>
-                  <div className="mb-4">
+                  <div className="">
                     <a
-                      @click="addDynamic"
+                      @click="addDynamic(index)"
                       className="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-green-500 text-white rounded"
                     >
                       Add
@@ -613,6 +526,16 @@
                     >
                       Remove
                     </a>
+                  </div>
+                </div>
+                <div class="col-span-6">
+                  <div class="p-2">
+                    <!-- <span
+                      v-if="item.attrArr.length > 0"
+                      v-for="at in item.attrArr"
+                      className="p-1 bg-indigo-500 rounded ml-1 text-white"
+                      >{{ at.value }} <span className="text-red-700"> X </span></span
+                    > -->
                   </div>
                 </div>
               </div>
@@ -667,14 +590,16 @@ const props = defineProps({
   categoriesOption: Object,
   sizesOption: Object,
   attributesOption: Object,
+  attributesValueOption: Object,
   colorsOption: Object,
   attributesValueData: Object,
-
+  taxonomyAttributesOption: Object,
   attributesData: Object,
   csrf_token: String,
 });
 
 const productForm = useForm({
+  taxonomy_attribute: [],
   description: "",
   id: "",
   price: "",
@@ -686,12 +611,19 @@ const productForm = useForm({
   unit: "",
   dynamic: reactive([
     {
-      sku: "",
+      // sku: "",
       price: "",
       quantity: "",
-      size: "",
-      color: "",
+      unit: "",
+      image: "",
+
+      // size: "",
+      // color: "",
+      attribute_value: [],
+      // attribute: [],
+      // attrArr: [],
       // variantImage: null,
+      variant_id: "",
     },
   ]),
 });
@@ -715,14 +647,31 @@ const categoryForm = useForm({
 
 // dynamic
 
-const addDynamic = () => {
-  productForm.dynamic.push({
-    sku: "",
-    price: "",
-    quantity: "",
-    size: "",
-    color: "",
-  });
+const addDynamic = (index) => {
+  if (
+    productForm.dynamic[index].attribute_value != "" &&
+    productForm.dynamic[index].price != "" &&
+    productForm.dynamic[index].quantity != "" &&
+    productForm.dynamic[index].image != ""
+  ) {
+    productForm.dynamic.push({
+      // sku: "",
+      attribute_value: [],
+      price: "",
+      quantity: "",
+      // size: "",
+      // color: "",
+    });
+  } else {
+    Swal.fire({
+      title: "Warning!",
+      text: "Please Select Attribute Value, Price, Quantity and Image",
+      icon: "warning",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ok",
+    });
+  }
 };
 
 const removeDynamic = (index) => {
@@ -751,9 +700,9 @@ const submitProduct = (event) => {
     })
     .post(route("manage.products.store"), {
       onSuccess: () => {
-        filepondProductImageInput.value.removeFiles(),
-          // filepondProductVariantImageInput.value.removeFiles(),
-          event.target.reset();
+        // filepondProductImageInput.value.removeFiles(),
+        // filepondProductVariantImageInput.value.removeFiles(),
+        event.target.reset();
       },
     });
 };
@@ -891,7 +840,7 @@ const editBrand = (id) => {
 const destroyAttribute = (id) => {
   Swal.fire({
     title: "Warning!",
-    text: "Are you sure you want to delete this?",
+    text: "Are you s  ure you want to delete this?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
@@ -900,7 +849,7 @@ const destroyAttribute = (id) => {
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
-      categoryForm.delete(route("manage.attributes.destroy", id));
+      attributeForm.delete(route("manage.attributes.destroy", id));
     }
   });
 };
@@ -925,6 +874,7 @@ const destroyAttributeValue = (id) => {
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
+      // alert(id);
       attributeValueForm.delete(route("manage.attributesValue.destroy", id));
     }
   });
@@ -939,6 +889,62 @@ const editAttributeValue = (id) => {
     attributeValueForm.value = res.data.value;
     attributeValueForm.type = res.data.attribute_id;
   });
+};
+
+const onChangeAttribute = (event) => {
+  // console.log(event);
+
+  axios
+    .post(route("manage.general.onChangeAttribute"), {
+      attribute_id: event,
+    })
+    .then((res) => {
+      // console.log(res.data);
+      props.attributesValueOption = res.data;
+    });
+};
+
+const onChangeAttributeValue = (event) => {
+  alert(event);
+  // axios
+  //   .post(route("manage.general.onChangeAttributeValue"), {
+  //     attribute_value_id: event,
+  //   })
+  //   .then((res) => {
+  //     // console.log(res.data);
+  //     props.attributesValueOption = res.data;
+  //   });
+};
+
+const checkAttributeValue = (index, event) => {
+  var attribute_values_id = JSON.parse(JSON.stringify(event));
+  console.log(attribute_values_id);
+  if (attribute_values_id.length > 1) {
+    console.log(index);
+    axios
+      .post(route("manage.general.checkAttributeValue"), {
+        attribute_values_id: attribute_values_id,
+      })
+      .then((res) => {
+        if (res.data == "not_match") {
+          Swal.fire({
+            title: "Warning!",
+            text:
+              "Please Select only One AttributeValue Per One Attribute (i.e Attribute : Color , AttributeValue : Blue)",
+            icon: "warning",
+            showCancelButton: false,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ok",
+          });
+
+          attribute_values_id.pop();
+          console.log(attribute_values_id);
+
+          productForm.dynamic[index].attribute_value = attribute_values_id;
+        }
+      });
+  }
 };
 </script>
 <style src="@vueform/multiselect/themes/default.css"></style>

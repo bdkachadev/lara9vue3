@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Brand;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 use Validator;
+use Illuminate\Support\Facades\Auth;
 
 class BrandController extends Controller
 {
@@ -17,6 +19,14 @@ class BrandController extends Controller
     public function index()
     {
         //
+        $brands = Brand::get();
+
+        return Inertia::render('Brand/Index', ["can" => [
+            'show' => Auth::user()->can('show_brand'),
+            'add' => Auth::user()->can('add_brand'),
+            'delete' => Auth::user()->can('delete_brand'),
+            'edit' => Auth::user()->can('edit_brand')
+        ],  'brands' => $brands]);
     }
 
     /**
@@ -58,7 +68,7 @@ class BrandController extends Controller
             $brand->name = $request->name;
             $brand->save();
         }
-        return Redirect::route('manage.products.create')->with('success', 'Bradn Created Successfully!!!');
+        return Redirect::back()->with('success', 'Bradn Created Successfully!!!');
     }
 
     /**

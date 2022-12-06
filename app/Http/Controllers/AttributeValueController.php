@@ -110,10 +110,10 @@ class AttributeValueController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(AttributeValue $attributeValue)
+    public function destroy($id)
     {
         //
-        $attributeValue->delete();
+        AttributeValue::where("id", $id)->delete();
         return Redirect::back()->with("success", "Attribute Value Deleted Successfully");
     }
 }

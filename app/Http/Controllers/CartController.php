@@ -23,14 +23,14 @@ class CartController extends Controller
     public function index()
     // public function cartList()
     {
-        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('is_placed', 0)->paginate(4);
+        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title",  "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('is_placed', 0)->paginate(4);
         // dd($cartItems);
         // return view('cart', compact('cartItems'));
 
         // if ($id) {
         //     $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.id', $id)->get();
         // } else {
-        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->where('is_placed', 0)->where('carts.user_id', auth()->user()->id)->get();
+        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title",  "p.price")->join('products as p', 'p.id', 'carts.product_id')->where('is_placed', 0)->where('carts.user_id', auth()->user()->id)->get();
         // }
         $subTotal = 0;
         foreach ($cartsCal->toArray() as $ke => $st) {
@@ -58,7 +58,13 @@ class CartController extends Controller
     // public function addToCart(Request $request)
     public function store(Request $request)
     {
-        $cart = Cart::where("is_placed", 0)->where('product_id', $request->id)->where('user_id', auth()->user()->id)->first();
+        $cart = Cart::where("is_placed", 0)
+            ->where('product_id', $request->id)
+            ->where('user_id', auth()->user()->id);
+        if ($request->variant_id) {
+            $cart = $cart->where("variant_id", $request->variant_id);
+        }
+        $cart = $cart->where('user_id', auth()->user()->id)->first();
         if ($cart) {
             $cart->quantity += $request->count;
         } else {
@@ -67,6 +73,7 @@ class CartController extends Controller
         }
         $cart->user_id = auth()->user()->id;
         $cart->product_id = $request->id;
+        $cart->variant_id = $request->variant_id;
         $cart->save();
         Session::flash('success', 'Product is Added to Cart Successfully !');
 

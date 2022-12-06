@@ -27,4 +27,16 @@ class Product extends Model
     {
         return $this->hasMany(Variant::class);
     }
+
+    // public function taxonomies()
+    // {
+    //     // return $this->belongsToMany(CustomTaxonomy::class);
+    //     return $this->belongsToMany(CustomTaxonomy::class, "product_taxonomy",  "taxonomy_id", "product_id");
+    // }
+
+    public function taxonomy_attributes()
+    {
+        // return $this->belongsToMany(CustomTaxonomy::class);
+        return $this->belongsToMany(TaxonomyAttribute::class, "product_taxonomies",  "product_id", "attribute_id");
+    }
 }

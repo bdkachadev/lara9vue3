@@ -63,11 +63,16 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="product in products.data"
+                  v-for="(product, index) in products.data"
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <td className="py-4 px-6">
-                    <img :src="product.images[0]['image']" width="200" height="200" />
+                    <!-- {{ product.images[0].image }} -->
+                    <img
+                      :src="product.images.map((item) => item.image)[0]"
+                      width="200"
+                      height="200"
+                    />
                   </td>
                   <th className="py-4 px-6">
                     {{ product.title }}

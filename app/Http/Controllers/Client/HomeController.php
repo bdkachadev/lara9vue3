@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
+use Illuminate\Support\Facades\Redirect;
 use App\Models\Cart;
 use Inertia\Inertia;
 use App\Models\Category;
@@ -29,9 +30,12 @@ class HomeController extends Controller
     // }
     public function index()
     {
+        if (auth()->user()->hasRole('super_admin'))
+            return Redirect::route("dashboard");
+
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
-        $products = Product::with("images")->get();
+        $products = Product::with("images")->latest()->get();
 
 
         $categories = Category::get();

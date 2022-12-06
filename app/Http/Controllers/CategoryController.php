@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use Validator;
+use Inertia\Inertia;
+
 
 class CategoryController extends Controller
 {
@@ -17,6 +20,14 @@ class CategoryController extends Controller
     public function index()
     {
         //
+        $categories = Category::get();
+
+        return Inertia::render('Category/Index', ["can" => [
+            'show' => Auth::user()->can('show_category'),
+            'add' => Auth::user()->can('add_category'),
+            'delete' => Auth::user()->can('delete_category'),
+            'edit' => Auth::user()->can('edit_category')
+        ], 'categories' => $categories]);
     }
 
     /**
@@ -58,7 +69,7 @@ class CategoryController extends Controller
             $category->name = $request->name;
             $category->save();
         }
-        return Redirect::route('manage.products.create')->with('success', 'Category Created Successfully!!!');
+        return Redirect::back()->with('success', 'Category Created Successfully!!!');
     }
 
     /**

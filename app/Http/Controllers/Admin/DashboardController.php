@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomTaxonomy;
+use App\Models\TaxonomyAttribute;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Product;
