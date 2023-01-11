@@ -8,7 +8,8 @@
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <!-- <div class="p-5 text-center"> -->
+          <div>
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -45,7 +46,7 @@
                 <Link
                   v-if="can.delete"
                   @click="clearAllCart()"
-                  className="ml-2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  className="ml-2 cursor-pointer bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 >
                   Empty Cart
                 </Link>
@@ -79,7 +80,7 @@
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
                   <td className="py-4 px-6">
-                    <!-- <img :src="cart.image" width="200" height="200" /> -->
+                    <img :src="cart.image" width="200" height="200" />
                   </td>
                   <th
                     scope="row"
@@ -109,21 +110,21 @@
                     <!-- <a
                       v-if="can.edit"
                       :href="route('manage.products.edit', cart.id)"
-                      className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
                     >
                       Edit
                     </a> -->
                     <!-- <a
                       v-if="can.buy"
                       :href="route('manage.carts.checkout', cart.id)"
-                      className="ml-2 bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
+                      className="ml-2 cursor-pointer bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-1 px-2 border border-blue-500 hover:border-transparent rounded"
                     >
                       Buy Now
                     </a> -->
                     <a
                       v-if="can.delete"
                       @click="destroyCart(cart.id)"
-                      className="ml-2 bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 px-2 border border-red-500 hover:border-transparent rounded"
+                      className="ml-2 cursor-pointer bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white py-1 px-2 border border-red-500 hover:border-transparent rounded"
                       >Remove</a
                     >
                   </td>
@@ -159,19 +160,30 @@
                 >
                   Order Total<span class="ml-2">${{ total }}</span>
                 </div>
-                <a
+                <button
+                  v-if="showCheckoutButton"
                   className="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-indigo-500 text-white rounded    w-full h-10 bg-indig-500 py-2 flex items-center justify-center gap-4 text-xs rounded-lg font-bold text-light shadow-md shadow-indigo hover:brightness-125 transition select-none"
                   id="add-cart"
-                  :href="route('manage.carts.checkout')"
+                  @click="proceedToCheckout"
                 >
                   Proceed to Checkout
-                </a>
+                </button>
+                <button
+                  v-if="!showCheckoutButton"
+                  className="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-indigo-500 text-white rounded    w-full h-10 bg-indig-500 py-2 flex items-center justify-center gap-4 text-xs rounded-lg font-bold text-light shadow-md shadow-indigo hover:brightness-125 transition select-none"
+                  id="add-cart"
+                  @click="proceedToCheckout"
+                  disabled="true"
+                >
+                  In Progress Please Wait ...
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <Footer />
   </AuthenticatedLayout>
 </template>
 
@@ -186,7 +198,7 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import Pagination from "@/Components/Pagination.vue";
-
+import Footer from "@/Layouts/Footer.vue";
 defineProps({
   options: Object,
   carts: Object,
@@ -195,8 +207,10 @@ defineProps({
   shippingTax: String,
   total: String,
 });
-
+const showCheckoutButton = ref(true);
 const onChangeQuantity = (cart, event) => {
+  event.preventDefault();
+
   // Swal.fire({
   //   title: "Warning!",
   //   text: "Are you sure you want to change quantity?",
@@ -214,7 +228,7 @@ const onChangeQuantity = (cart, event) => {
       quantity: event.target.value,
     })
     .then((response) => {
-      window.location.href = route("manage.carts.index");
+      // window.location.href = route("manage.carts.index");
 
       // Swal.fire({
       //   title: "Wow!",
@@ -248,7 +262,7 @@ const destroyCart = (id) => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
@@ -266,7 +280,7 @@ const clearAllCart = () => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
@@ -281,6 +295,11 @@ const clearAllCart = () => {
       });
     }
   });
+};
+
+const proceedToCheckout = () => {
+  showCheckoutButton.value = false;
+  window.location.href = route("manage.carts.checkout");
 };
 </script>
 <style src="@vueform/multiselect/themes/default.css"></style>

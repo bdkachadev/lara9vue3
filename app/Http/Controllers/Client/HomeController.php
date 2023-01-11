@@ -35,32 +35,50 @@ class HomeController extends Controller
 
         $productsCount = Product::count();
         $usersCount = User::whereNot('id', 1)->count();
-        $products = Product::with("images")->latest()->get();
+        $products = Product::with("images", "categories", "brands", "variants", "tags", "taxonomy_attributes")->latest()->get();
 
 
-        $categories = Category::get();
-        $categoriesAll = [];
+        $categories = Category::with("parent_category", "sub_categories")->where('parent_id', '=', null)->get();
+        // dd($categories);
         foreach ($categories as $k => $c) {
-            $categoriesAll[$k]["label"] = $c->name;
-            $categoriesAll[$k]["value"] = $c->id;
-            $categoriesAll[$k]["id"] = $c->id;
-            $categoriesAll[$k]["checked"] = false;
+            $categories[$k]["label"] = $c->name;
+            $categories[$k]["value"] = $c->id;
+            $categories[$k]["checked"] = false;
         }
+        // $categoriesAll = [];
+        // foreach ($categories as $k => $c) {
+        //     $categoriesAll[$k]["label"] = $c->name;
+        //     $categoriesAll[$k]["value"] = $c->id;
+        //     $categoriesAll[$k]["id"] = $c->id;
+        //     $categoriesAll[$k]["checked"] = false;
+        //     $categoriesAll[$k]["sub_categories"] = $c->sub_categories;
+        //     $categoriesAll[$k]["parent_category"] = $c->parent_category;
+        // }
+        // $brands = Brand::get();
         $brands = Brand::get();
+        // dd($brands);
+        foreach ($brands as $k => $b) {
+            $brands[$k]["label"] = $b->name;
+            $brands[$k]["value"] = $b->id;
+        }
 
         // $categoriesData = Category::latest()->paginate(5);
 
-        $brandsAll = [];
-        foreach ($brands as $k => $c) {
-            $brandsAll[$k]["label"] = $c->name;
-            $brandsAll[$k]["value"] = $c->id;
-            $brandsAll[$k]["id"] = $c->id;
-            $brandsAll[$k]["value"] = false;
-        }
+        // $brandsAll = [];
+        // foreach ($brands as $k => $c) {
+        //     $brandsAll[$k]["label"] = $c->name;
+        //     $brandsAll[$k]["value"] = $c->id;
+        //     $brandsAll[$k]["id"] = $c->id;
+        //     $brandsAll[$k]["value"] = false;
+        // }
 
-        return Inertia::render('Client/Home', [["can" => [
+        return Inertia::render('Client/Home', ["can" => [
             'show' => auth()->user()->can('show_home'),
-        ]], "brandsAll" => $brandsAll, "categoriesAll" => $categoriesAll, "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
+            'edit_category' => auth()->user()->can('edit_category'),
+            'edit_brand' => auth()->user()->can('edit_brand'),
+            'delete_brand' => auth()->user()->can('delete_brand'),
+            'delete_category' => auth()->user()->can('delete_category'),
+        ], "brandsAll" => $brands, "categoriesAll" => $categories, "productsCount" => $productsCount, "usersCount" => $usersCount, "products" => $products]);
     }
 
     /**

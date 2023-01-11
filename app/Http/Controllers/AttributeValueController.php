@@ -6,10 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\AttributeValue;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
-
+use App\Models\Attribute;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
 
 class AttributeValueController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_attribute_value', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_attribute_value', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_attribute_value', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_attribute_value', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,7 +26,29 @@ class AttributeValueController extends Controller
      */
     public function index()
     {
-        //
+        $attributesOption = [];
+
+        $attributes = Attribute::select("id", "name")->get();
+
+        foreach ($attributes as $attkey => $attribute) {
+            $attributesOption[$attkey]["label"] = $attribute->name;
+            $attributesOption[$attkey]["value"] = $attribute->id;
+        }
+        // dd($attributesOption);
+        // dd($attributesValueOption);
+
+        $attributesValueData = AttributeValue::with("attribute")->latest()->paginate(10);
+        return Inertia::render('AttributeValue/Index', [
+
+            "attributesValueData" => $attributesValueData,
+            "attributesOption" => $attributesOption,
+            "can" =>  [
+                'show' => Auth::user()->can('show_attribute_value'),
+                'add' => Auth::user()->can('add_attribute_value'),
+                'delete' => Auth::user()->can('delete_attribute_value'),
+                'edit' => Auth::user()->can('edit_attribute_value'),
+            ],
+        ]);
     }
 
     /**
@@ -42,7 +73,6 @@ class AttributeValueController extends Controller
         $validator =  Validator::make($request->all(), [
             'type' => 'required',
             'value' => 'required',
-
         ])->validate();
 
         // if ($validator->fails()) {
@@ -51,22 +81,25 @@ class AttributeValueController extends Controller
         if ($request->id) {
             $attributeValue = AttributeValue::find($request->id);
             $attributeValue->attribute_id = $request->type;
-            $attributeValue->slug = strtolower($request->value);
+            $attributeValue->slug = $request->slug;
             $attributeValue->value = ucwords($request->value);
+
+
             $attributeValue->save();
             return Redirect::back()->with('success', 'Attribute Value Updated SuccessFully!!!');
         } else {
-            $attributeValue = AttributeValue::where("value", $request->value)->first();
+            $attributeValue = AttributeValue::where("attribute_id", $request->attribute_id)->where("value", $request->value)->first();
             if ($attributeValue) {
                 return Redirect::back()->with('error', 'Attribute Value Already Exist !!!');
             }
             $attributeValue = new AttributeValue;
             $attributeValue->attribute_id = $request->type;
-            $attributeValue->slug = strtolower($request->value);
+            $attributeValue->slug = $request->slug;
             $attributeValue->value = ucwords($request->value);
-            $attributeValue->save();
+
+            $attributeValue->save(); // = $request->description;
         }
-        return Redirect::route('manage.products.create')->with('success', 'Attribute Value Created Successfully!!!');
+        return Redirect::back()->with('success', 'Attribute Value Created Successfully!!!');
     }
 
     /**

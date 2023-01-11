@@ -1,6 +1,5 @@
 <template>
   <Head title="Detail" />
-
   <AuthenticatedLayout>
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Detail</h2>
@@ -39,7 +38,7 @@
                 <main className="w-full flex flex-col lg:flex-row">
                   <!-- Gallery -->
                   <section
-                    className="h-fit flex-col gap-8 mt-16 sm:flex sm:flex-row sm:gap-4 sm:h-full sm:mt-24 sm:mx-2 md:gap-8 md:mx-4 lg:flex-col lg:mx-0 "
+                    className="h-fit w-96 flex-col gap-8 mt-16 sm:flex sm:flex-row sm:gap-4 sm:h-full sm:mt-24 sm:mx-2 md:gap-8 md:mx-4 lg:flex-col lg:mx-0 "
                   >
                     <picture
                       className="relative flex items-center bg-indigo sm:bg-transparent"
@@ -64,10 +63,12 @@
                           />
                         </svg>
                       </button>
+                      <!--                         className="object-cover h-96 w-96 block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
+                                -->
                       <img
                         :src="myImage"
                         alt="product"
-                        className="object-cover h-96 w-96 block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
+                        className="object-cover h-full w-full block sm:rounded-xl xl:w-[70%] xl:rounded-xl m-auto pointer-events-none transition duration-300 lg:w-3/4 lg:pointer-events-auto lg:cursor-pointer lg:hover:shadow-xl"
                         id="hero"
                       />
 
@@ -112,7 +113,9 @@
                   </section>
 
                   <!-- Text -->
-                  <section className="w-full p-6  lg:pr-20 lg:py-10 2xl:pr-40 2xl:mt-40">
+                  <section
+                    className="w-full p-6  lg:pr-20 lg:py-10 2xl:pr-40 2xl:mt-40 mb-40"
+                  >
                     <h1 className="text-very-dark mb-4 font-bold text-3xl lg:text-4xl">
                       {{ product.title }}
                     </h1>
@@ -146,7 +149,7 @@
                         <button
                           id="minus"
                           className="plus-minus"
-                          :disabled="isActive"
+                          :disabled="isDisabled"
                           @click="count != 1 ? count-- : 1"
                         >
                           <div className="w-3 h-1 bg-indigo absolute" id="minus"></div>
@@ -171,7 +174,7 @@
                         <button
                           id="plus"
                           className="plus-minus"
-                          :disabled="isActive"
+                          :disabled="isDisabled"
                           @click="count != product.quantity ? count++ : product.quantity"
                         >
                           <svg
@@ -193,7 +196,7 @@
                       <button
                         className="inline-block py-0.5 px-1.5 leading-none text-center whitespace-nowrap align-baseline font-bold bg-indigo-500 text-white rounded    w-full h-10 bg-indig-500 py-2 flex items-center justify-center gap-4 text-xs rounded-lg font-bold text-light shadow-md shadow-indigo hover:brightness-125 transition select-none"
                         id="add-cart"
-                        :disabled="isActive"
+                        :disabled="isDisabled"
                         @click="addToCart(product.id)"
                       >
                         <svg
@@ -211,18 +214,20 @@
                         Add to cart
                       </button>
                     </div>
-                    <div className="mt-2">Available Variants</div>
+                    <div v-if="availVariant.lenght > 0" className="mt-2">
+                      Available Variants
+                    </div>
                     <div v-html="stock"></div>
                     <div
-                      v-for="(arr, index) in Arr"
+                      v-for="(arr, index) in availVariant"
                       className="w-full mt-2 h-10 text-sm bg-light py-2 flex items-center justify-between rounded-lg font-bold relatives sm:w-80"
                     >
-                      <div class="w-16 shrink-0">
+                      <div class="w-20 shrink-0">
                         <div class="h-10 flex flex-col justify-center">
                           <div
                             class="text-sm font-semibold text-slate-900 dark:text-slate-200"
                           >
-                            {{ index }}
+                            {{ (placeholder = index.split("-")[1]) }}
                           </div>
                         </div>
                       </div>
@@ -230,7 +235,7 @@
                         :close-on-select="true"
                         :searchable="true"
                         :create-option="true"
-                        :options="Object.values(arr)"
+                        :options="arr"
                         :placeholder="placeholder"
                         @change="onChangeVariant(index, $event, product.id)"
                       />
@@ -281,6 +286,7 @@
         </div>
       </div>
     </div>
+    <Footer />
   </AuthenticatedLayout>
 </template>
 
@@ -295,18 +301,19 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import Pagination from "@/Components/Pagination.vue";
-
+import Footer from "@/Layouts/Footer.vue";
 const props = defineProps({
   product: Object,
-  Arr: Object,
+  availVariant: Object,
+  availVariantCount: String,
   variant: {},
 
   //   can: Object,
 });
 var selectedAttribute = {};
 const stock = ref("");
-const isActive = ref(false);
-
+const isDisabled = ref(false);
+var getAttribute = "";
 const myImage = ref(props.product.images[0]["image"]);
 const count = ref(1);
 // var sssss = ref(false);
@@ -322,25 +329,63 @@ const addToCart = async (product_id) => {
   if (props.variant) {
     variant_id = props.variant.id;
   }
-  await axios
-    .post(route("manage.carts.store"), {
-      count: count.value,
-      id: product_id,
-      variant_id: variant_id,
-    })
-    // .post(route("manage.carts.store"), { id: id })
-    .then((response) => {
-      window.location.href = route("manage.carts.index");
+  // alert(variant_id);
+  // alert(typeof props.availVariantCount);
 
-      // Swal.fire({
-      //   title: "Wow!",
-      //   text: "Product is Added to Cart Successfully",
-      //   icon: "success",
-      // });
-    })
-    .catch((error) => {
-      console.log(error);
+  // alert(props.availVariantCount);
+  // if (props.availVariantCount > 0) {
+  //   alert("l");
+  // }
+  if (parseInt(props.availVariantCount) > 0 && variant_id == null) {
+    Swal.fire({
+      title: "Warning!",
+      text: "Please Select Variant",
+      icon: "warning",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ok",
     });
+  } else {
+    // var cartimage = null;
+
+    // if (props.variant && props.variant.image != "") {
+    //   if (props.variant.image) {
+    //     cartimage = props.variant.image;
+    //   } else {
+    //     cartimage = props.product.images[0]["image"];
+    //   }
+    // } else {
+    //   alert("l");
+    //   cartimage = props.product.images[0]["image"];
+    // }
+    // alert(cartimage);
+
+    await axios
+      .post(route("manage.carts.store"), {
+        count: count.value,
+        id: product_id,
+        variant_id: variant_id,
+        cartimage:
+          props.variant && props.variant.image
+            ? props.variant.image
+              ? props.variant.image
+              : props.product.images[0]["image"]
+            : props.product.images[0]["image"],
+      })
+      // .post(route("manage.carts.store"), { id: id })
+      .then((response) => {
+        window.location.href = route("manage.carts.index");
+
+        // Swal.fire({
+        //   title: "Wow!",
+        //   text: "Product is Added to Cart Successfully",
+        //   icon: "success",
+        // });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 };
 // const clickOnVariant = (type, value) => {
 //   sssss != sssss;
@@ -350,41 +395,68 @@ const addToCart = async (product_id) => {
 //   console.log(value);
 // };
 
+// const getAttributeName = (attribute_id) => {
+//   axios
+//     .post(route("manage.general.getAttributeName"), {
+//       attribute_id: attribute_id,
+//     })
+//     .then((response) => {
+//       return response.data.name;
+//     });
+// };
+
 const onChangeVariant = (type, event, product_id) => {
+  console.log(type);
   selectedAttribute[type] = event;
   console.log(selectedAttribute);
 
+  console.log(Object.values(selectedAttribute));
+  var all_null = Object.values(selectedAttribute).every(function (v) {
+    return v === null;
+  });
   axios
     .post(route("manage.general.onChangeVariant"), {
       selectedAttribute: selectedAttribute,
       product_id: product_id,
     })
     .then((response) => {
-      if (response.data) {
-        // console.log("ll");
+      console.log(response);
+      if (response.data && response.data != "") {
+        console.log("ll");
         // console.log(response.data);
         stock.value = "<span class='text-green-600	 font-bold'>In Stock</span>";
         props.variant = response.data;
         // console.log(props.variant.image.image);
-        myImage.value = props.variant.image.image;
+        myImage.value =
+          props.variant.image && props.variant.image != ""
+            ? props.variant.image
+            : props.product.images[0]["image"];
         props.product.price = props.variant.price;
         props.product.quantity = props.variant.quantity;
-        isActive.value = false;
+        isDisabled.value = false;
         count.value = 1;
+        console.log(props.variant.image);
 
         // console.log(myImage);
       } else {
-        // console.log("lll");
-        // props.variant = {};
+        if (all_null) {
+          stock.value = "";
+          isDisabled.value = false;
+          count.value = 1;
+        } else {
+          stock.value = "<span class='text-red-600	 font-bold'>Out Of Stock</span>";
+          isDisabled.value = true;
+          count.value = 0;
+        }
+        console.log("llllllllllllllllllllllllllllllllll");
+        props.variant = {};
         myImage.value = props.product.images[0]["image"];
-        props.product.price = props.variant.price;
-        props.product.quantity = props.variant.quantity;
-        isActive.value = true;
-        count.value = 0;
+        props.product.price = props.product.price;
+        props.product.quantity = props.product.quantity;
 
         // console.log(myImage);
 
-        stock.value = "<span class='text-red-600	 font-bold'>Out Of Stock</span>";
+        console.log(stock.value);
       }
       // Swal.fire({
       //   title: "Wow!",

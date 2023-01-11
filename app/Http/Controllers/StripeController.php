@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Option;
 use Validator;
 
 class StripeController extends Controller
@@ -35,7 +36,6 @@ class StripeController extends Controller
     public function purchase(Request $request)
     {
 
-
         Validator::make($request->all(), [
             'name' => ['required'],
             'email' => ['required'],
@@ -48,7 +48,8 @@ class StripeController extends Controller
         // dd($request->user());
         $user          = $request->user();
         $paymentMethod = $request->input('payment_method');
-        $shipping_charge = 10;
+        $shipping_charge = Option::where("oprion_key", "shipping_charge")->value("option_value");
+
         $t = $request->price + $shipping_charge;
         try {
             $user->createOrGetStripeCustomer();

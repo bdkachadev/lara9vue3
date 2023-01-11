@@ -9,11 +9,11 @@ class TaxonomyAttribute extends Model
 {
     use HasFactory;
 
-    public function taxonomies()
-    {
-        // return $this->belongsToMany(CustomerTaxonomy::class);
-        return $this->belongsToMany(CustomTaxonomy::class, "attribute_taxonomy",  "taxonomy_id", "attribute_id");
-    }
+    // public function taxonomies()
+    // {
+    //     // return $this->belongsToMany(CustomerTaxonomy::class);
+    //     return $this->belongsToMany(CustomTaxonomy::class, "attribute_taxonomy",  "taxonomy_id", "attribute_id");
+    // }
 
     public function taxonomy()
     {

@@ -8,7 +8,8 @@
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <!--  <div class="p-5 text-center"> -->
+          <div>
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -168,46 +169,55 @@
                     <!-- <a
                       v-if="can.edit"
                       :href="route('manage.orders.edit', order.id)"
-                      className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
                     >
                       Edit
                     </a> -->
                     <a
-                      v-if="can.delete"
-                      @click="destroyOrder(order.id)"
-                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
-                      >Delete</a
-                    >
-                    <a
-                      v-if="can.show && $page.props.auth.role == 'user'"
+                      v-if="can.show"
                       :href="route('manage.orders.show', order.id)"
-                      className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
                       >View</a
                     >
                     <a
+                      v-if="can.delete"
+                      @click="destroyOrder(order.id)"
+                      className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline"
+                      >Delete</a
+                    >
+
+                    <a
                       v-if="
+                        can.cancel &&
                         order.order_status != 'canceled' &&
                         $page.props.auth.role == 'user'
                       "
-                      @click="cancleOrder(order.id)"
-                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
-                      >Cancle</a
+                      @click="cancelOrder(order.id)"
+                      className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline"
+                      >cancel</a
                     >
                   </td>
                 </tr>
               </tbody>
             </table>
+
             <div className="float-right">
               <Pagination class="mt-6" :links="orders.links" />
+            </div>
+            <div v-if="orders.data.length <= 0" className="mt-5 flex justify-center">
+              No records found!
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <Footer v-if="$page.props.auth.role === 'user'" />
   </AuthenticatedLayout>
 </template>
 
 <script setup>
+import Footer from "@/Layouts/Footer.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Link, Head } from "@inertiajs/inertia-vue3";
 import BreezeLabel from "@/Components/InputLabel.vue";
@@ -267,7 +277,7 @@ const destroyOrder = (id) => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
@@ -276,19 +286,19 @@ const destroyOrder = (id) => {
     }
   });
 };
-const cancleOrder = (id) => {
+const cancelOrder = (id) => {
   Swal.fire({
     title: "Warning!",
-    text: "Are you sure you want to cancle this Order?",
+    text: "Are you sure you want to cancel this Order?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, cancle it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {
-      axios.post(route("manage.orders.cancleOrder"), { id: id }).then((result) => {
+      axios.post(route("manage.orders.cancelOrder"), { id: id }).then((result) => {
         console.log(result);
         window.location.href = route("manage.orders.index");
       });

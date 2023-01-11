@@ -29,7 +29,7 @@ class RoleController extends Controller
      */
     public function index()
     {
-        $roles = Role::with('permissions')->whereNotIn('name', ['super_admin'])->get();
+        $roles = Role::with('permissions')->whereNotIn('name', ['super_admin'])->latest()->paginate(10);
         $permissions = Permission::all();
         $options = array_column($permissions->toArray(), "name");
         return Inertia::render('Roles', ['roles' => $roles, 'permissions' => $permissions, "options" => $options, 'can' => [

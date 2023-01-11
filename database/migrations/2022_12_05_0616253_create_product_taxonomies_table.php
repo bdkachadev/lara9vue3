@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger("product_id");
             $table->foreign("product_id")->references("id")->on("products")->onDelete("cascade");
-            $table->integer("attribute_id");
-            $table->timestamps();
+            $table->unsignedBigInteger("attribute_id");
+            $table->foreign("attribute_id")->references("id")->on("taxonomy_attributes")->onDelete("cascade");
         });
     }
 

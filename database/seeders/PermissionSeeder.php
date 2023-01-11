@@ -18,6 +18,9 @@ class PermissionSeeder extends Seeder
     public function run()
     {
         $admin_permissions = [
+
+            "show_dashboard",
+
             "add_user",
             "edit_user",
             "delete_user",
@@ -36,21 +39,114 @@ class PermissionSeeder extends Seeder
             "add_product",
             "edit_product",
             "delete_product",
-            "show_product"
+            "show_product",
+
+            "add_order",
+            "edit_order",
+            "delete_order",
+            "show_order",
+            "cancel_order",
+
+            "show_taxonomy",
+            "edit_taxonomy",
+            "delete_taxonomy",
+            "show_taxonomy",
+
+            "add_attribute",
+            "edit_attribute",
+            "delete_attribute",
+            "show_attribute",
+
+            "add_category",
+            "edit_category",
+            "delete_category",
+            "show_category",
+
+            "add_brand",
+            "edit_brand",
+            "delete_brand",
+            "show_brand",
+
+            "add_tag",
+            "edit_tag",
+            "delete_tag",
+            "show_tag",
+
+            "show_taxonomy_attribute",
+            "edit_taxonomy__attribute",
+            "delete_taxonomy__attribute",
+            "show_taxonomy__attribute",
+
+            "edit_attribute_value",
+            "delete_attribute_value",
+            "show_attribute_value",
+            "add_attribute_value",
 
         ];
         $manager_permissions = [
+            "show_dashboard",
+
             "add_product",
             "edit_product",
             "delete_product",
-            "show_product"
+            "show_product",
+
+            "add_order",
+            "edit_order",
+            "delete_order",
+            "show_order",
+            "cancel_order",
+
+            "show_taxonomy",
+            "edit_taxonomy",
+            "delete_taxonomy",
+            "show_taxonomy",
+
+            "add_attribute",
+            "edit_attribute",
+            "delete_attribute",
+            "show_attribute",
+
+            "add_category",
+            "edit_category",
+            "delete_category",
+            "show_category",
+
+            "add_brand",
+            "edit_brand",
+            "delete_brand",
+            "show_brand",
+
+            "add_tag",
+            "edit_tag",
+            "delete_tag",
+            "show_tag",
+
+            "show_taxonomy_attribute",
+            "edit_taxonomy__attribute",
+            "delete_taxonomy__attribute",
+            "show_taxonomy__attribute",
+
+            "edit_attribute_value",
+            "delete_attribute_value",
+            "show_attribute_value",
+            "add_attribute_value",
+
         ];
         $user_permissions = [
-            "show_product"
+            "show_home", "show_order", "cancel_order", "show_cart", "add_cart", "edit_cart", "delete_cart", "buy_now"
         ];
-        foreach ($admin_permissions as $p) {
-            $role = Permission::insert(["name" => $p, "guard_name" => "web"]);
+        foreach (array_merge($admin_permissions, $manager_permissions, $user_permissions) as $p) {
+            $role =  Permission::firstOrNew(["name" => $p]);
+            $role->name = $p;
+            $role->guard_name = "web";
+            $role->save();
         }
+        // $Permission = Permission::firstOrNew(["name" => "show_home"]);
+        // $Permission->name = "show_home";
+        // $Permission->guard_name = "web";
+        // $Permission->save();
+
         $role = Role::findByName('admin');
         $role->syncPermissions($admin_permissions);
 

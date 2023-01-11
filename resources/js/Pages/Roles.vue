@@ -9,7 +9,8 @@
     <div className="py-8">
       <div className="max-w-7xl mx-auto sm:px-12 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <!-- <div class="p-5 text-center"> -->
+          <div>
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -54,6 +55,7 @@
                     className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
                     v-model="roleForm.name"
                     autofocus
+                    placeholder="Enter name"
                   />
 
                   <span className="text-red-600" v-if="roleForm.errors.name">
@@ -113,6 +115,7 @@
                       :create-option="true"
                       v-model="roleForm.permission"
                       :options="options"
+                      placeholder="-- Select Permissions --"
                     />
                     <span className="text-red-600" v-if="roleForm.errors.permission">
                       {{ roleForm.errors.permission }}
@@ -202,23 +205,17 @@
               </thead>
               <tbody>
                 <tr
-                  v-for="role in roles"
+                  v-for="role in roles.data"
                   className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
                 >
-                  <th
-                    scope="row"
-                    className="py-4 px-6"
-                  >
+                  <th scope="row" className="py-4 px-6">
                     {{ role.name }}
                   </th>
 
-                  <th
-                    scope="row"
-                    className="py-4 px-6"
-                  >
+                  <th scope="row" className="py-4 px-6">
                     {{
                       role.permissions.length > 0
-                        ? role.permissions.map((item) => item.name)
+                        ? role.permissions.map((item) => item.name).join(", ")
                         : ""
                     }}
                   </th>
@@ -227,19 +224,25 @@
                     <a
                       v-if="can.edit"
                       @click="editRole(role.id)"
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="font-medium cursor-pointer text-blue-600 dark:text-blue-500 hover:underline"
                       >Edit</a
                     >
                     <a
                       v-if="can.delete"
                       @click="destroyRole(role.id)"
-                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
                   </td>
                 </tr>
               </tbody>
             </table>
+            <div className="float-right">
+              <Pagination class="mt-6" :links="roles.links" />
+            </div>
+            <div v-if="roles.data.length <= 0" className="mt-5 flex justify-center">
+              No records found!
+            </div>
           </div>
         </div>
       </div>
@@ -256,6 +259,7 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import { Inertia } from "@inertiajs/inertia";
+import Pagination from "@/Components/Pagination.vue";
 
 defineProps({
   roles: Object,
@@ -318,7 +322,7 @@ const destroyRole = (id) => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {

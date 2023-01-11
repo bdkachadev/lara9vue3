@@ -14,7 +14,7 @@ class CustomTaxonomy extends Model
     //     // return $this->belongsTomMany(TaxonomyAttribute::class);
     //     return $this->belongsToMany(Product::class, "product_taxonomy", "taxonomy_id", "attribute_id");
     // }
-
+ 
     public function attributes()
     {
         // return $this->belongsTomMany(TaxonomyAttribute::class);

@@ -30,7 +30,7 @@ class PermissionController extends Controller
     public function index()
     {
         $roles = Role::whereNotIn('name', ['super_admin'])->get();
-        $permissions = Permission::with('roles')->get();
+        $permissions = Permission::with('roles')->latest()->paginate(10);
         $options = array_column($roles->toArray(), "name");
 
         return Inertia::render('Permissions', ["can" => [

@@ -11,6 +11,8 @@ import Toast, { POSITION } from "vue-toastification";
 import 'sweetalert2/dist/sweetalert2.min.css';
 import "vue-toastification/dist/index.css";
 import "https://js.stripe.com/v3/";
+import vue3Spinner from "vue3-spinner";
+import VueCarousel from 'vue-carousel';
 
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
@@ -26,6 +28,8 @@ createInertiaApp({
             .use(ZiggyVue, Ziggy)
             .use(VueSweetalert2)
             .use(Toast, options)
+            .use(vue3Spinner)
+            .use(VueCarousel)
             .mount(el);
     },
 });

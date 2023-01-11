@@ -136,10 +136,10 @@
                       <tr v-for="cat in categoriesData" className="overflow-y-scroll">
                         <td scope="col" className="py-3 px-6">{{ cat.name }}</td>
                         <td scope="col" className="py-3 px-6">
-                          <a @click="editCategory(cat.id)" className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                          <a @click="editCategory(cat.id)" className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                             Edit
                           </a>
-                          <a @click="destroyCategory(cat.id)" className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
+                          <a @click="destroyCategory(cat.id)" className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
                         </td>
                       </tr>
                     </tbody>
@@ -148,7 +148,7 @@
                     <Pagination class="mt-6" :links="categoriesData.links" />
                   </div> -->
                   <div v-if="categoriesData.length <= 0" className="mt-5 flex justify-center">
-                    No found records!
+                    No records found!
                   </div>
                 </div>
                 <div>
@@ -168,10 +168,10 @@
                       <tr v-for="brd in brandsData">
                         <td scope="col" className="py-3 px-6">{{ brd.name }}</td>
                         <td scope="col" className="py-3 px-6">
-                          <a @click="editBrand(brd.id)" className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                          <a @click="editBrand(brd.id)" className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                             Edit
                           </a>
-                          <a @click="destroyBrand(brd.id)" className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
+                          <a @click="destroyBrand(brd.id)" className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
                         </td>
                       </tr>
                     </tbody>
@@ -180,7 +180,7 @@
                     <Pagination class="mt-6" :links="brandsData.links" />
                   </div> -->
                   <div v-if="categoriesData.length <= 0" className="mt-5 flex justify-center">
-                    No found records!
+                    No records found!
                   </div>
                 </div>
                 <div>
@@ -201,10 +201,10 @@
                       <tr v-for="attribute in attributesData" className="overflow-y-scroll">
                         <td scope="col" className="py-3 px-6">{{ attribute.name }}</td>
                         <td scope="col" className="py-3 px-6">
-                          <a @click="editAttribute(attribute.id)" className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                          <a @click="editAttribute(attribute.id)" className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                             Edit
                           </a>
-                          <a @click="destroyAttribute(attribute.id)" className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
+                          <a @click="destroyAttribute(attribute.id)" className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
                         </td>
                       </tr>
                     </tbody>
@@ -213,7 +213,7 @@
                     <Pagination class="mt-6" :links="attributesData.links" />
                   </div> -->
                   <div v-if="attributesData.length <= 0" className="mt-5 flex justify-center">
-                    No found records!
+                    No records found!
                   </div>
                 </div>
                 <div>
@@ -235,10 +235,10 @@
                           {{ attributeValue.value }}
                         </td>
                         <td scope="col" className="py-3 px-6">
-                          <a @click="editAttributeValue(attributeValue.id)" className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                          <a @click="editAttributeValue(attributeValue.id)" className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline">
                             Edit
                           </a>
-                          <a @click="destroyAttributeValue(attributeValue.id)" className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
+                          <a @click="destroyAttributeValue(attributeValue.id)" className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline">Delete</a>
                         </td>
                       </tr>
                     </tbody>
@@ -247,7 +247,7 @@
                     <Pagination class="mt-6" :links="attributesValueData.links" />
                   </div> -->
                   <div v-if="attributesValueData.length <= 0" className="mt-5 flex justify-center">
-                    No found records!
+                    No records found!
                   </div>
                 </div>
               </div>
@@ -662,7 +662,7 @@
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -679,7 +679,7 @@
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -696,7 +696,7 @@
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -727,7 +727,7 @@
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -752,7 +752,7 @@
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonText: "Yes",
       cancelButtonText: "Cancel",
     }).then((result) => {
       if (result.isConfirmed) {

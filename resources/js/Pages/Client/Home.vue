@@ -4,7 +4,7 @@
   <AuthenticatedLayout>
     <div class="bg-white">
       <!-- Mobile filter dialog -->
-      <TransitionRoot as="template" :show="mobileFiltersOpen">
+      <!-- <TransitionRoot as="template" :show="mobileFiltersOpen">
         <Dialog
           as="div"
           class="relative z-40 lg:hidden"
@@ -47,7 +47,6 @@
                   </button>
                 </div>
 
-                <!-- Filters -->
                 <form class="mt-4 border-t border-gray-200">
                   <h3 class="sr-only1">Categories</h3>
                   <ul role="list" class="px-2 py-3 font-medium text-gray-900">
@@ -106,8 +105,7 @@
             </TransitionChild>
           </div>
         </Dialog>
-      </TransitionRoot>
-
+      </TransitionRoot> -->
       <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div
           class="flex items-baseline justify-between border-b border-gray-200 pt-4 pb-2"
@@ -149,7 +147,7 @@
                         :class="[
                           option.current ? 'font-medium text-gray-900' : 'text-gray-500',
                           active ? 'bg-gray-100' : '',
-                          'block px-4 py-2 text-sm',
+                          'block px-4 py-2 text-sm cursor-pointer',
                         ]"
                         >{{ option.name }}</a
                       >
@@ -177,7 +175,7 @@
           </div>
         </div>
 
-        <section aria-labelledby="products-heading" class="pt-6 pb-24">
+        <section aria-labelledby="products-heading" class="pt-6 pb-6">
           <!-- <h2 id="products-heading" class="sr-only1">Products</h2> -->
 
           <div class="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
@@ -199,12 +197,12 @@
                 as="div"
                 v-for="section in filters"
                 :key="section.id"
-                class="border-b border-gray-200 py-2"
+                className="border-b border-gray-200 py-2 cursor-pointer"
                 v-slot="{ open }"
-                >
+              >
                 <h3 class="-my-3 flow-root">
                   <DisclosureButton
-                    class="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500"
+                    class="py-2 flex w-full items-center justify-between bg-white text-sm text-gray-400 hover:text-gray-500"
                   >
                     <span class="font-medium text-gray-900">{{ section.name }}</span>
                     <span class="ml-6 flex items-center">
@@ -213,34 +211,91 @@
                     </span>
                   </DisclosureButton>
                 </h3>
-                <DisclosurePanel class="pt-6">
-                  <div class="space-y-4">
-                    <div
-                      v-for="(option, optionIdx) in section.options"
-                      :key="option.value"
-                      class="flex items-center"
+                <DisclosurePanel class="pt-4">
+                  <Disclosure
+                    v-for="(option, optionIdx) in section.options"
+                    :key="option.value"
+                    class="border-b border-gray-200 py-2"
+                    as="div"
+                    v-slot="{ open }"
+                  >
+                    <input
+                      :id="`filter-${section.id}-${optionIdx}`"
+                      :name="`${section.id}[]`"
+                      :value="option.value"
+                      @click="filterBy(section.name.toLowerCase(), option, null)"
+                      type="checkbox"
+                      :checked="option.checked"
+                      class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                    />
+                    <label
+                      :for="`filter-${section.id}-${optionIdx}`"
+                      class="ml-3 text-sm text-gray-600 cursor-pointer"
+                      >{{ option.label }}</label
                     >
-                      <!-- {{ section.name }} -->
-                      <input
-                        :id="`filter-${section.id}-${optionIdx}`"
-                        :name="`${section.id}[]`"
-                        :value="option.value"
-                        @click="filterBy(section.name.toLowerCase(), option, null)"
-                        type="checkbox"
-                        :checked="option.checked"
-                        class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    <DisclosureButton
+                      v-if="section.name.toLowerCase() == 'category'"
+                      class="items-center justify-between bg-white text-sm text-gray-400 hover:text-gray-500"
+                    >
+                      <span class="ml-6 flex items-center">
+                        <PlusIcon v-if="!open" class="h-5 w-5" aria-hidden="true" />
+                        <MinusIcon v-else class="h-5 w-5" aria-hidden="true" />
+                      </span>
+                    </DisclosureButton>
+                    <DisclosurePanel class="pt-2">
+                      <SubCategory
+                        v-if="section.name.toLowerCase() == 'category'"
+                        :data="option.id"
+                        :can="can"
                       />
-                      <label
-                        :for="`filter-${section.id}-${optionIdx}`"
-                        class="ml-3 text-sm text-gray-600"
-                        >{{ option.label }}</label
-                      >
-                    </div>
-                  </div>
+                      <!-- <SubBrand
+                        v-if="section.name.toLowerCase() == 'brand'"
+                        :data="option.id"
+                        :can="can"
+                      /> -->
+                      <!-- <Disclosure
+                        v-if="option.sub_categories"
+                        v-for="(subcategory, optionSubIdx) in option.sub_categories"
+                        :key="subcategory.id"
+                        class="border-b border-gray-200 py-2"
+                        as="div"
+                        v-slot="{ open }"
+                       >
+                        <input
+                          :id="`filter-${option.id}-${optionSubIdx}`"
+                          :name="`${subcategory.id}[]`"
+                          :value="subcategory.id"
+                          type="checkbox"
+                          :checked="subcategory.checked"
+                          class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+
+                        <label
+                          :for="`filter-${option.id}-${optionSubIdx}`"
+                          class="ml-3 text-sm text-gray-600"
+                          >{{ subcategory.name }}</label
+                        >
+                        <DisclosureButton
+                          v-if="option.sub_categories.length > 0"
+                          class="items-center justify-between bg-white text-sm text-gray-400 hover:text-gray-500"
+                        >
+                          <span class="ml-6 flex items-center">
+                            <PlusIcon v-if="!open" class="h-5 w-5" aria-hidden="true" />
+                            <MinusIcon v-else class="h-5 w-5" aria-hidden="true" />
+                          </span>
+                        </DisclosureButton>
+                        <DisclosurePanel class="pt-2">
+                          <SubCategory
+                            :data="subcategory.id"
+                            :subCatLength="subcategory.sub_categories.length"
+                          />
+                        </DisclosurePanel>
+                      </Disclosure> -->
+                    </DisclosurePanel>
+                  </Disclosure>
                 </DisclosurePanel>
               </Disclosure>
             </form>
-
             <!-- Product grid -->
             <div class="lg:col-span-3">
               <div class="w-screen h-screen justify-start pr-8">
@@ -362,8 +417,8 @@
                     <div class="bg-gray-100 h-screen justify-center">
                       <center class="mt-24 m-auto">
                         <div class="tracking-widest mt-4">
-                          <span class="text-gray-500 text-xl text-center"
-                            >Opps!, Product not found!</span
+                          <span class="text-gray-500 text-xl text-center">
+                            Opps!, Product not found!</span
                           >
                         </div>
                       </center>
@@ -376,6 +431,7 @@
         </section>
       </main>
     </div>
+    <Footer />
   </AuthenticatedLayout>
 </template>
 <script setup>
@@ -388,6 +444,9 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import { Inertia } from "@inertiajs/inertia";
+import SubCategory from "@/Pages/Category/SubCategory.vue";
+import Footer from "@/Layouts/Footer.vue";
+
 import {
   Dialog,
   DialogPanel,
@@ -430,6 +489,7 @@ const props = defineProps({
   categoriesAll: Object,
   products: Object,
   brandsAll: Object,
+  can: Object,
 });
 const filters = [
   //   {
@@ -472,38 +532,85 @@ const mobileFiltersOpen = ref(false);
 
 // const count = ref(1);
 
-var brand = [];
-var category = [];
+var selectedBrand = [];
+var selectedCategory = [];
 // var sortBy = "title";
 let mainProductsObject = props.products;
-
+const settings = {
+  lazyLoad: "ondemand",
+  dots: true,
+  fade: true,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+};
 const filterBy = computed(() => {
-  //   alert("lllll");
+  // alert("lllll");
   return function (filter_type = null, payload = {}, sortBy = null) {
     // alert(sortBy);
+    // console.log(payload);
     // alert(filter_type);
-    // alert(payload);
 
     if (filter_type == "category") {
-      if (category.includes(payload.id)) {
-        category = _.without(category, payload.id);
+      if (selectedCategory.includes(payload.id)) {
+        selectedCategory = _.without(selectedCategory, payload.id);
       } else {
-        category.push(payload.id);
+        selectedCategory.push(payload.id);
       }
     }
+    // console.log(category);
     if (filter_type == "brand") {
-      if (brand.includes(payload.id)) {
-        brand = _.without(brand, payload.id);
+      if (selectedBrand.includes(payload.id)) {
+        selectedBrand = _.without(selectedBrand, payload.id);
       } else {
-        brand.push(payload.id);
+        selectedBrand.push(payload.id);
       }
     }
+    // props.products = mainProductsObject.filter((item) => {
+    //   console.log("---   " + selectedCategory);
+    //   console.log(typeof selectedCategory);
+
+    //   console.log("222   " + item.categories.map((i) => i.id));
+    //   console.log(typeof item.categories.map((i) => i.id));
+
+    //   console.log(JSON.stringify(selectedCategory) == JSON.stringify(item.categories.map((i) => i.id)));
+    //   // selectedCategory.some();
+
+    //   return (
+    //     // (this.keyword.length === 0 || item.name.includes(this.keyword)) &&
+    //     (selectedCategory.length === 0 || selectedCategory.includes(item.categories.map((i) => i.id))) &&
+    //     (brand.length === 0 || brand.includes(item.brands.map((i) => i.id)))
+    //   );
+    // });
+
     props.products = mainProductsObject.filter((item) => {
+      var productCategories = item.categories.map((i) => i.id);
+      var productBrands = item.brands.map((i) => i.id);
+
+      // return intersect array checkForCategory
+      var checkForCategory = selectedCategory.filter((obj) => {
+        return productCategories.indexOf(obj) != -1;
+      });
+
+      // return intersect arraycheckForCategory
+      var checkForBrand = selectedBrand.filter((obj) => {
+        return productBrands.indexOf(obj) != -1;
+      });
+
       return (
         // (this.keyword.length === 0 || item.name.includes(this.keyword)) &&
-        (category.length === 0 || category.includes(item.category_id)) &&
-        (brand.length === 0 || brand.includes(item.brand_id))
+        (selectedCategory.length === 0 ||
+          // JSON.stringify(selectedCategory) == JSON.stringify(item.categories.map((i) => i.id)))
+          // selectedCategory.includes(item.categories.map((i) => i.id)[0])
+          checkForCategory > 0) &&
+        (selectedBrand.length === 0 ||
+          // JSON.stringify(selectedBrand) == JSON.stringify(item.brands.map((i) => i.id)))
+          // selectedBrand.includes(item.brands.map((i) => i.id)[0])
+          checkForBrand.length > 0)
       );
+
+      return this.anotherArrayName.includes(name);
     });
     // alert("l;");
     if (sortBy == "title") {

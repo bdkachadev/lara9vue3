@@ -5,10 +5,10 @@
     <template #header>
       <h2 className="font-semibold text-xl text-gray-800 leading-tight">Checkout</h2>
     </template>
-    <div className="py-8">
+    <div className="">
       <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-          <div class="p-5 text-center">
+          <div class="">
             <div v-if="$page.props.flash.success">
               <FlashMessage
                 type="success"
@@ -327,10 +327,19 @@
                 <div class="mt-4">
                   <!-- <StripeCheckout ref="checkoutRef" :pk="publishableKey" mode="payment" /> -->
                   <button
+                    v-if="showMakePayment"
                     @click="submit"
                     class="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
                   >
                     Make Payment
+                  </button>
+                  <button
+                    v-if="!showMakePayment"
+                    @click="submit"
+                    disabled="true"
+                    class="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
+                  >
+                    In Process Please Wait ...
                   </button>
                 </div>
                 <!-- </form> -->
@@ -354,13 +363,15 @@
         </div>
       </div>
     </div>
+    <!-- <DotLoader :loading="showLoader" /> -->
+    <Footer />
   </AuthenticatedLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { loadStripe } from "@stripe/stripe-js";
-
+import Footer from "@/Layouts/Footer.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { useForm, Link, Head } from "@inertiajs/inertia-vue3";
 import BreezeLabel from "@/Components/InputLabel.vue";
@@ -369,6 +380,7 @@ import FlashMessage from "@/Components/FlashMessage.vue";
 import Swal from "sweetalert2";
 import Multiselect from "@vueform/multiselect";
 import Pagination from "@/Components/Pagination.vue";
+import { DotLoader } from "vue3-spinner";
 // import "https://js.stripe.com/v3/";
 import "https://code.jquery.com/jquery-3.6.1.js";
 const publishableKey = ref(
@@ -401,6 +413,8 @@ var paymentMethod = null;
 var cardElelement = {};
 var stripe = {};
 
+const showMakePayment = ref(true);
+
 const props = defineProps({
   carts: Object,
   subTotal: String,
@@ -418,7 +432,7 @@ const checkoutForm = useForm({
   city: "",
   // postcode: "",
   note: "",
-  price: props.total,
+  price: props.subTotal,
   holder_name: "",
   payment_method: paymentMethod,
   cart_ids: props.cartIds,
@@ -507,6 +521,7 @@ const submit = () => {
     if (paymentMethod) {
       return true;
     }
+    showMakePayment.value = false;
     // console.log(cardElelement);
     stripe
       .confirmCardSetup(props.intent.client_secret, {
@@ -532,7 +547,7 @@ const submit = () => {
 
           // $(".card-form").submit();
           checkoutForm.post(route("manage.checkout.purchase"), {
-            onFinish: () => console.log(""),
+            onFinish: () => (showLoader.value = true),
           });
           // .then(async (response) => {
           //   // Swal.fire({

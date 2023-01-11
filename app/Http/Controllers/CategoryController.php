@@ -12,6 +12,13 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_category', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_category', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_category', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_category', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -19,15 +26,28 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
-        $categories = Category::get();
+        $cat = Category::with("parent_category", "sub_categories")->orderBy('name', 'asc');
+        // $categories = $cat->paginate(10);
+        $categories = $cat->where('parent_id',  NULL)->get();
+        // dd($categories);
+        foreach ($categories as $k => $c) {
+            $categories[$k]["label"] = $c->name;
+            $categories[$k]["value"] = $c->id;
+            $categories[$k]["checked"] = false;
+        }
+        $parentCategories = [];
+        foreach ($cat->get() as $ky => $ca) {
+            $parentCategories[$ky]["label"] = $ca->name;
+            $parentCategories[$ky]["value"] = $ca->id;
+        }
 
         return Inertia::render('Category/Index', ["can" => [
             'show' => Auth::user()->can('show_category'),
             'add' => Auth::user()->can('add_category'),
-            'delete' => Auth::user()->can('delete_category'),
-            'edit' => Auth::user()->can('edit_category')
-        ], 'categories' => $categories]);
+            'delete_category' => Auth::user()->can('delete_category'),
+            'edit_category' => Auth::user()->can('edit_category'),
+
+        ], 'categories' => $categories, "parentCategories" => $parentCategories]);
     }
 
     /**
@@ -50,6 +70,10 @@ class CategoryController extends Controller
     {
         $validator =  Validator::make($request->all(), [
             'name' => 'required',
+            'slug' => 'required',
+            'parent_id' => 'nullable|numeric'
+
+
         ])->validate();
 
         // if ($validator->fails()) {
@@ -58,6 +82,10 @@ class CategoryController extends Controller
         if ($request->id) {
             $category = Category::find($request->id);
             $category->name = $request->name;
+            $category->slug = $request->slug;
+            $category->description = $request->description;
+            $category->parent_id = $request->parent_id;
+
             $category->save();
             return Redirect::back()->with('success', 'Category Updated SuccessFully!!!');
         } else {
@@ -67,6 +95,9 @@ class CategoryController extends Controller
             }
             $category = new Category;
             $category->name = $request->name;
+            $category->slug = $request->slug;
+            $category->parent_id = $request->parent_id;
+            $category->description = $request->description;
             $category->save();
         }
         return Redirect::back()->with('success', 'Category Created Successfully!!!');
@@ -91,7 +122,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        $category = Category::find($category->id);
+        $category = Category::with("parent_category", "sub_categories")->find($category->id);
         return response()->json($category);
     }
 

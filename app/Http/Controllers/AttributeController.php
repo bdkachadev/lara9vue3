@@ -6,9 +6,19 @@ use Illuminate\Http\Request;
 use App\Models\Attribute;
 use Illuminate\Support\Facades\Redirect;
 use Validator;
+use Inertia\Inertia;
+use App\Models\AttributeValue;
+use Illuminate\Support\Facades\Auth;
 
 class AttributeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_attribute', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_attribute', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_attribute', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_attribute', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +26,18 @@ class AttributeController extends Controller
      */
     public function index()
     {
-        //
+
+        $attributesData = Attribute::with("values")->latest()->paginate(10);
+        return Inertia::render('Attribute/Index', [
+
+            "attributesData" => $attributesData,
+            "can" =>  [
+                'show' => Auth::user()->can('show_attribute'),
+                'add' => Auth::user()->can('add_attribute'),
+                'delete' => Auth::user()->can('delete_attribute'),
+                'edit' => Auth::user()->can('edit_attribute'),
+            ],
+        ]);
     }
 
     /**
@@ -39,6 +60,8 @@ class AttributeController extends Controller
     {
         $validator =  Validator::make($request->all(), [
             'name' => 'required',
+            'slug' => 'required',
+
         ])->validate();
 
         // if ($validator->fails()) {
@@ -46,7 +69,8 @@ class AttributeController extends Controller
         // }
         if ($request->id) {
             $attribute = Attribute::find($request->id);
-            $attribute->slug = strtolower($request->name);
+            $attribute->slug = $request->slug;
+            $attribute->description = $request->description;
             $attribute->name = ucwords($request->name);
             $attribute->save();
             return Redirect::back()->with('success', 'Attribute Updated SuccessFully!!!');
@@ -56,11 +80,12 @@ class AttributeController extends Controller
                 return Redirect::back()->with('error', 'Attribute Already Exist !!!');
             }
             $attribute = new Attribute;
-            $attribute->slug = strtolower($request->name);
+            $attribute->slug = $request->slug;
+            $attribute->description = $request->description;
             $attribute->name = ucwords($request->name);
             $attribute->save();
         }
-        return Redirect::route('manage.products.create')->with('success', 'Attribute Created Successfully!!!');
+        return Redirect::back()->with('success', 'Attribute Created Successfully!!!');
     }
 
     /**

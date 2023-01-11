@@ -90,14 +90,14 @@
                     <a
                       v-if="can.edit"
                       :href="route('manage.products.edit', product.id)"
-                      className="ml-2 font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-blue-600 dark:text-blue-500 hover:underline"
                     >
                       Edit
                     </a>
                     <a
                       v-if="can.delete"
                       @click="destroyProduct(product.id)"
-                      className="ml-2 font-medium text-red-600 dark:text-red-500 hover:underline"
+                      className="ml-2 cursor-pointer font-medium text-red-600 dark:text-red-500 hover:underline"
                       >Delete</a
                     >
                   </td>
@@ -106,6 +106,10 @@
             </table>
             <div className="float-right">
               <Pagination class="mt-6" :links="products.links" />
+            </div>
+
+             <div v-if="products.data.length <= 0" className="mt-5 flex justify-center">
+              No records found!
             </div>
           </div>
         </div>
@@ -151,7 +155,7 @@ const destroyProduct = (id) => {
     showCancelButton: true,
     confirmButtonColor: "#3085d6",
     cancelButtonColor: "#d33",
-    confirmButtonText: "Yes, delete it!",
+    confirmButtonText: "Yes",
     cancelButtonText: "Cancel",
   }).then((result) => {
     if (result.isConfirmed) {

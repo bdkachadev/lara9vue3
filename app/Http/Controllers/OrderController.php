@@ -78,8 +78,8 @@ class OrderController extends Controller
         //
         // dd(Auth::user()->hasRole('user'));
         // if (Auth::user()->hasRole('user')) {
-        $order = Order::where("user_id", auth()->user()->id)->where("id", $id)->first();
-        $cart = Cart::select("carts.*", "p.title", "p.description", "p.price", "p.image")->join("products as p", "p.id", "carts.product_id")->whereIn('carts.id', explode(",", $order->cart_ids))->get();
+        $order = Order::where("id", $id)->first();
+        $cart = Cart::select("carts.*", "p.title", "p.description")->join("products as p", "p.id", "carts.product_id")->whereIn('carts.id', explode(",", $order->cart_ids))->get();
         // dd($order);
         // dd($cart);
         // foreach($order as $o){
@@ -135,7 +135,7 @@ class OrderController extends Controller
         // dd(\DB::getQueryLog());
         Session::flash('success', 'Order status Changed Successfully !');
     }
-    public function cancleOrder(Request $request)
+    public function cancelOrder(Request $request)
     {
         Order::where("id", $request->id)->update(["order_status" => 'canceled']);
 

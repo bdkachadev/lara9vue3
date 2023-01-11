@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Models\ProductImage;
 use App\Models\Category;
 use App\Models\Variant;
+use App\Models\Brand;
+use App\Models\Tag;
+
 
 class Product extends Model
 {
@@ -18,14 +21,24 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class);
     }
 
     public function variants()
     {
         return $this->hasMany(Variant::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     // public function taxonomies()

@@ -23,6 +23,7 @@ class ProductSeeder extends Seeder
                 "description" => Str::random(40),
                 "price" => rand(100, 50000),
                 "quantity" => rand(2, 50),
+                "unit" => "Piece",
             ]);
         }
     }

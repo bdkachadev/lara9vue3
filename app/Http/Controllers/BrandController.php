@@ -11,6 +11,13 @@ use Illuminate\Support\Facades\Auth;
 
 class BrandController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:show_brand', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_brand', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_brand', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_brand', ['only' => ['destroy']]);
+    }
     /**
      * Display a listing of the resource.
      *
@@ -18,14 +25,20 @@ class BrandController extends Controller
      */
     public function index()
     {
-        //
-        $brands = Brand::get();
+
+        $brands = Brand::latest()->paginate(10);
+
+        // foreach ($brands as $k => $c) {
+        //     $brands[$k]["label"] = $c->name;
+        //     $brands[$k]["value"] = $c->id;
+        // }
+
 
         return Inertia::render('Brand/Index', ["can" => [
             'show' => Auth::user()->can('show_brand'),
             'add' => Auth::user()->can('add_brand'),
-            'delete' => Auth::user()->can('delete_brand'),
-            'edit' => Auth::user()->can('edit_brand')
+            'delete_brand' => Auth::user()->can('delete_brand'),
+            'edit_brand' => Auth::user()->can('edit_brand')
         ],  'brands' => $brands]);
     }
 
@@ -57,6 +70,8 @@ class BrandController extends Controller
         if ($request->id) {
             $brand = Brand::find($request->id);
             $brand->name = $request->name;
+            $brand->slug = $request->slug;
+            $brand->description = $request->description;
             $brand->save();
             return Redirect::back()->with('success', 'Brand Updated SuccessFully!!!');
         } else {
@@ -66,6 +81,8 @@ class BrandController extends Controller
             }
             $brand = new Brand;
             $brand->name = $request->name;
+            $brand->slug = $request->slug;
+            $brand->description = $request->description;
             $brand->save();
         }
         return Redirect::back()->with('success', 'Bradn Created Successfully!!!');

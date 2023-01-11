@@ -8,16 +8,16 @@ use App\Models\CustomTaxonomy;
 use App\Models\TaxonomyAttribute;
 use Validator;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Auth;
 
 class CustomTaxonomyController extends Controller
 {
     public function __construct()
     {
-        // $this->middleware('can:show_taxonomy', ['only' => ['index', 'show']]);
-        // $this->middleware('can:add_taxonomy', ['only' => ['create', 'store']]);
-        // $this->middleware('can:edit_taxonomy', ['only' => ['edit', 'update']]);
-        // $this->middleware('can:delete_taxonomy', ['only' => ['destroy']]);
-        // $this->middleware('can:cancel_taxonomy', ['only' => ['cancel']]);
+        $this->middleware('can:show_taxonomy', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_taxonomy', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_taxonomy', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_taxonomy', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -26,19 +26,16 @@ class CustomTaxonomyController extends Controller
      */
     public function index()
     {
-        $taxonomiesOption = [];
-        $taxonomies = CustomTaxonomy::get();
+        $taxonomies = CustomTaxonomy::latest()->paginate(10);
         $taxonomiesData = $taxonomies;
-
-        foreach ($taxonomies as $ki => $taxonomy) {
-            $taxonomiesOption[$ki]["label"] = $taxonomy->taxonomy_name;
-            $taxonomiesOption[$ki]["value"] = $taxonomy->id;
-        }
-        $taxonomyAttributeData = TaxonomyAttribute::get();
         return Inertia::render('CustomTaxonomy/Index', [
-            "taxonomiesOption" => $taxonomiesOption,
             "taxonomiesData" => $taxonomiesData,
-            "taxonomyAttributeData" => $taxonomyAttributeData,
+            "can" => [
+                'show' => Auth::user()->can('show_taxonomy'),
+                'add' => Auth::user()->can('add_taxonomy'),
+                'delete' => Auth::user()->can('delete_taxonomy'),
+                'edit' => Auth::user()->can('edit_taxonomy'),
+            ],
         ]);
     }
 
@@ -105,8 +102,9 @@ class CustomTaxonomyController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(CustomTaxonomy $CustomTaxonomy)
+    public function edit($id)
     {
+        $CustomTaxonomy = CustomTaxonomy::where("id", $id)->first();
         return response()->json($CustomTaxonomy);
     }
 

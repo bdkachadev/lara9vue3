@@ -20,7 +20,10 @@ use App\Http\Controllers\AttributeValueController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\GeneralController;
 use App\Http\Controllers\CustomTaxonomyController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\TaxonomyAttributeController;
+use App\Http\Controllers\ProductImageController;
+
 
 
 /*
@@ -59,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/checkout/getStripeSession', [StripeController::class, "getStripeSession"])->name("checkout.getStripeSession");
         Route::post('/checkout/purchase', [StripeController::class, "purchase"])->name('checkout.purchase');
         Route::post('/orders/changeStatus', [OrderController::class, "changeStatus"])->name('orders.changeStatus');
-        Route::post('/orders/cancleOrder', [OrderController::class, "cancleOrder"])->name('orders.cancleOrder');
+        Route::post('/orders/cancelOrder', [OrderController::class, "cancelOrder"])->name('orders.cancelOrder');
 
         Route::post('/general/onChangeAttribute', [GeneralController::class, 'onChangeAttribute'])->name('general.onChangeAttribute');
         Route::post('/general/checkAttributeValue', [GeneralController::class, 'checkAttributeValue'])->name('general.checkAttributeValue');
@@ -67,6 +70,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::post('/general/getNameOfAttribute', [GeneralController::class, 'getNameOfAttribute'])->name('general.getNameOfAttribute');
         Route::post('/general/onChangeVariant', [GeneralController::class, 'onChangeVariant'])->name('general.onChangeVariant');
+
+        Route::post('/general/getAttributeName', [GeneralController::class, 'getAttributeName'])->name('general.getAttributeName');
+
+        Route::post('/general/getSubCatObject', [GeneralController::class, 'getSubCatObject'])->name('general.getSubCatObject');
+        Route::post('/general/getSubBrandObject', [GeneralController::class, 'getSubBrandObject'])->name('general.getSubBrandObject');
+
+        Route::post('/general/getPermissionsList', [GeneralController::class, 'getPermissionsList'])->name('general.getPermissionsList');
+        Route::post('/products/updateProduct', [ProductController::class, "updateProduct"])->name("products.updateProduct");
 
 
         Route::resource('/users', UserController::class);
@@ -80,6 +91,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('/attributes', AttributeController::class);
         Route::resource('/attributesValue', AttributeValueController::class);
         Route::resource('/customTaxonomy', CustomTaxonomyController::class);
+        Route::resource('/tags', TagController::class);
         Route::resource('/taxonomyAttribute', TaxonomyAttributeController::class);
     });
 

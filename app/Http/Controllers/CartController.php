@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Cart;
 use App\Models\User;
+use App\Models\Variant;
+use App\Models\Option;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Session;
@@ -20,23 +23,27 @@ class CartController extends Controller
         $this->middleware('can:delete_cart', ['only' => ['destroy']]);
         $this->middleware('can:buy_now', ['only' => ['checkout']]);
     }
+
     public function index()
     // public function cartList()
     {
-        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title",  "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('is_placed', 0)->paginate(4);
+        $carts = Cart::select("p.description", "carts.id", "carts.quantity", "carts.image", "p.title",  "carts.price")
+            ->join('products as p', 'p.id', 'carts.product_id')
+            ->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)
+            ->where('is_placed', 0)->paginate(4);
         // dd($cartItems);
         // return view('cart', compact('cartItems'));
 
         // if ($id) {
         //     $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.id', $id)->get();
         // } else {
-        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title",  "p.price")->join('products as p', 'p.id', 'carts.product_id')->where('is_placed', 0)->where('carts.user_id', auth()->user()->id)->get();
+        $cartsCal = Cart::select("p.description", "carts.id", "carts.quantity", "p.title",  "carts.price")->join('products as p', 'p.id', 'carts.product_id')->where('is_placed', 0)->where('carts.user_id', auth()->user()->id)->get();
         // }
         $subTotal = 0;
         foreach ($cartsCal->toArray() as $ke => $st) {
             $subTotal += ($st['price'] * $st['quantity']);
         }
-        $shippingTax = 10;
+        $shippingTax = Option::where("oprion_key", "shipping_charge")->value("option_value");
         $total = $subTotal + $shippingTax;
         return Inertia::render('Client/Cart/Index', [
             "carts" => $carts,
@@ -63,17 +70,22 @@ class CartController extends Controller
             ->where('user_id', auth()->user()->id);
         if ($request->variant_id) {
             $cart = $cart->where("variant_id", $request->variant_id);
+            $price = Variant::where("id", $request->variant_id)->value("price");
+        } else {
+            $price = Product::where("id", $request->id)->value("price");
         }
-        $cart = $cart->where('user_id', auth()->user()->id)->first();
+        $cart = $cart->first();
         if ($cart) {
             $cart->quantity += $request->count;
         } else {
             $cart = new Cart;
             $cart->quantity = $request->count;
         }
+        $cart->price = $price;
         $cart->user_id = auth()->user()->id;
         $cart->product_id = $request->id;
         $cart->variant_id = $request->variant_id;
+        $cart->image = $request->cartimage;
         $cart->save();
         Session::flash('success', 'Product is Added to Cart Successfully !');
 
@@ -125,9 +137,9 @@ class CartController extends Controller
     public function checkout($id = null)
     {
         if ($id) {
-            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->where('carts.id', $id)->get();
+            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "carts.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->where('carts.id', $id)->get();
         } else {
-            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "p.image", "p.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->get();
+            $carts = Cart::select("p.description", "carts.id", "carts.quantity", "p.title", "carts.price")->join('products as p', 'p.id', 'carts.product_id')->latest("carts.created_at")->where('carts.user_id', auth()->user()->id)->where('carts.is_placed', 0)->get();
         }
         $subTotal = 0;
         $cartIds = [];
@@ -135,7 +147,7 @@ class CartController extends Controller
             $subTotal += $st['price'] * $st['quantity'];
             $cartIds[] = $st["id"];
         }
-        $shippingTax = 10;
+        $shippingTax = Option::where("oprion_key", "shipping_charge")->value("option_value");
         $total = $subTotal + $shippingTax;
         $user = User::find(auth()->user()->id);
         $intent = auth()->user()->createSetupIntent();

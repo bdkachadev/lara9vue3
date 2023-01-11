@@ -149,7 +149,7 @@
                         :class="[
                           option.current ? 'font-medium text-gray-900' : 'text-gray-500',
                           active ? 'bg-gray-100' : '',
-                          'block px-4 py-2 text-sm',
+                          'block px-4 py-2 text-sm cursor-pointer',
                         ]"
                         >{{ option.name }}</a
                       >

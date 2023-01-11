@@ -12,18 +12,17 @@ use App\Models\CustomTaxonomy;
 use App\Models\TaxonomyAttribute;
 use Validator;
 use Illuminate\Support\Facades\Redirect;
-
+use Illuminate\Support\Facades\Auth;
 
 class TaxonomyAttributeController extends Controller
 {
 
     public function __construct()
     {
-        // $this->middleware('can:show_taxonomy_attribute', ['only' => ['index', 'show']]);
-        // $this->middleware('can:add_taxonomy_attribute', ['only' => ['create', 'store']]);
-        // $this->middleware('can:edit_taxonomy_attribute', ['only' => ['edit', 'update']]);
-        // $this->middleware('can:delete_taxonomy_attribute', ['only' => ['destroy']]);
-        // $this->middleware('can:cancel_taxonomy_attribute', ['only' => ['cancel']]);
+        $this->middleware('can:show_taxonomy_attribute', ['only' => ['index', 'show']]);
+        $this->middleware('can:add_taxonomy_attribute', ['only' => ['create', 'store']]);
+        $this->middleware('can:edit_taxonomy_attribute', ['only' => ['edit', 'update']]);
+        $this->middleware('can:delete_taxonomy_attribute', ['only' => ['destroy']]);
     }
     /**
      * Display a listing of the resource.
@@ -33,18 +32,22 @@ class TaxonomyAttributeController extends Controller
     public function index()
     {
         $taxonomiesOption = [];
-        $taxonomyAttributes = TaxonomyAttribute::get();
-        $taxonomyAttributesData = $taxonomyAttributes;
-
-        foreach ($taxonomyAttributes as $ki => $attribute) {
-            $taxonomiesOption[$ki]["label"] = $attribute->attribute_name;
-            $taxonomiesOption[$ki]["value"] = $attribute->id;
+        $taxonomyAttributes = TaxonomyAttribute::with("taxonomy")->latest()->paginate(10);
+        $taxonomyAttributeData = $taxonomyAttributes;
+        $customTaxonomy = CustomTaxonomy::orderBy("taxonomy_name")->get();
+        foreach ($customTaxonomy as $ki => $taxonomy) {
+            $taxonomiesOption[$ki]["label"] = $taxonomy->taxonomy_name;
+            $taxonomiesOption[$ki]["value"] = $taxonomy->id;
         }
-        $taxonomyAttributeData = TaxonomyAttribute::get();
-        return Inertia::render('CustomTaxonomy/Index', [
-            "taxonomiesOption" => $taxonomiesOption,
-            "taxonomyAttributesData" => $taxonomyAttributesData,
+        return Inertia::render('TaxonomyAttribute/Index', [
+            "taxonomiesOption" => array_unique($taxonomiesOption, SORT_REGULAR),
             "taxonomyAttributeData" => $taxonomyAttributeData,
+            "can" => [
+                'show' => Auth::user()->can('show_taxonomy_attribute'),
+                'add' => Auth::user()->can('add_taxonomy_attribute'),
+                'delete' => Auth::user()->can('delete_taxonomy_attribute'),
+                'edit' => Auth::user()->can('edit_taxonomy_attribute'),
+            ]
         ]);
     }
 
@@ -77,7 +80,6 @@ class TaxonomyAttributeController extends Controller
         if ($request->id) {
             $taxonomyAttribute = TaxonomyAttribute::find($request->id);
             $taxonomyAttribute->attribute_name = $request->name;
-            $taxonomyAttribute->attribute_description = $request->description;
             $taxonomyAttribute->attribute_slug = $request->slug;
             $taxonomyAttribute->taxonomy_id = $request->type;
 
@@ -91,7 +93,6 @@ class TaxonomyAttributeController extends Controller
             }
             $taxonomyAttribute = new TaxonomyAttribute;
             $taxonomyAttribute->attribute_name = $request->name;
-            $taxonomyAttribute->attribute_description = $request->description;
             $taxonomyAttribute->taxonomy_id = $request->type;
 
             $taxonomyAttribute->attribute_slug = $request->slug;
